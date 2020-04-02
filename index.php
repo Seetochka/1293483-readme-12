@@ -14,7 +14,7 @@ $posts = [
     [
         'title' => 'Игра престолов',
         'type' => 'post-text',
-        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала',
+        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!',
         'user_name' => 'Владик',
         'avatar' => 'img/userpic.jpg'
     ],
@@ -40,6 +40,33 @@ $posts = [
         'avatar' => 'img/userpic.jpg'
     ]
 ];
+
+$post_max_length = 300;
+
+function cut_text($text, $max_length)
+{
+    $text_length = mb_strlen($text);
+
+    if ($text_length < $max_length) {
+        return $text;
+    }
+
+    $words = explode(' ', $text);
+    $cutted_text = '';
+    $index = 0;
+    $cutted_text_length = 0;
+
+    while ($cutted_text_length + mb_strlen($words[$index]) <= $max_length) {
+        $cutted_text .= " {$words[$index]}";
+        $cutted_text_length = mb_strlen($cutted_text);
+
+        ++$index;
+    }
+
+    $cutted_text .= ' ...';
+
+    return $cutted_text;
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -295,7 +322,12 @@ $posts = [
                     <?php break; ?>
 
                     <?php case 'post-text': ?>
-                        <p><?= $post['content']; ?></p>
+                        <p><?= cut_text($post['content'], $post_max_length); ?></p>
+                        <?php if (mb_strlen($post['content']) > $post_max_length): ?>
+                            <div class="post-text__more-link-wrapper">
+                                <a class="post-text__more-link" href="#">Читать далее</a>
+                            </div>
+                        <?php endif; ?>
                         <?php break; ?>
                     <?php endswitch; ?>
                 </div>
