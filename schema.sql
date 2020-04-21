@@ -25,7 +25,7 @@ CREATE TABLE posts (
     title VARCHAR(128),
     content TEXT,
     quote_author VARCHAR(128),
-    image VARCHAR(128),
+    photo VARCHAR(128),
     video VARCHAR(128),
     link VARCHAR(128),
     show_count INT UNSIGNED DEFAULT 0,
