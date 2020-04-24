@@ -40,72 +40,41 @@
                         <span>Все</span>
                     </a>
                 </li>
-                <li class="popular__filters-item filters__item">
-                    <a class="filters__button filters__button--photo button" href="#">
-                        <span class="visually-hidden">Фото</span>
-                        <svg class="filters__icon" width="22" height="18">
-                            <use xlink:href="#icon-filter-photo"></use>
-                        </svg>
-                    </a>
-                </li>
-                <li class="popular__filters-item filters__item">
-                    <a class="filters__button filters__button--video button" href="#">
-                        <span class="visually-hidden">Видео</span>
-                        <svg class="filters__icon" width="24" height="16">
-                            <use xlink:href="#icon-filter-video"></use>
-                        </svg>
-                    </a>
-                </li>
-                <li class="popular__filters-item filters__item">
-                    <a class="filters__button filters__button--text button" href="#">
-                        <span class="visually-hidden">Текст</span>
-                        <svg class="filters__icon" width="20" height="21">
-                            <use xlink:href="#icon-filter-text"></use>
-                        </svg>
-                    </a>
-                </li>
-                <li class="popular__filters-item filters__item">
-                    <a class="filters__button filters__button--quote button" href="#">
-                        <span class="visually-hidden">Цитата</span>
-                        <svg class="filters__icon" width="21" height="20">
-                            <use xlink:href="#icon-filter-quote"></use>
-                        </svg>
-                    </a>
-                </li>
-                <li class="popular__filters-item filters__item">
-                    <a class="filters__button filters__button--link button" href="#">
-                        <span class="visually-hidden">Ссылка</span>
-                        <svg class="filters__icon" width="21" height="18">
-                            <use xlink:href="#icon-filter-link"></use>
-                        </svg>
-                    </a>
-                </li>
+                <?php foreach ($content_types as $content_type):
+                    $type = $content_type['class_name']; ?>
+                    <li class="popular__filters-item filters__item">
+                        <a class="filters__button filters__button--<?= $content_type['class_name']; ?> button" href="#">
+                            <span class="visually-hidden"><?= $content_type['title']; ?></span>
+                            <svg class="filters__icon" width="<?= $content_type_size[$type]['width']; ?>" height="<?= $content_type_size[$type]['height']; ?>">
+                                <use xlink:href="#icon-filter-<?= $content_type['class_name']; ?>"></use>
+                            </svg>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
             </ul>
         </div>
     </div>
     <div class="popular__posts">
-        <?php foreach ($posts as $post_index => $post):
-            $post_date = generate_random_date($post_index);
-        ?>
-            <article class="popular__post post <?= $post['type'] ?>">
+        <?php foreach ($posts as $post): ?>
+            <article class="popular__post post post-<?= $post['class_name']; ?>">
                 <header class="post__header">
                     <h2><?= htmlspecialchars($post['title']); ?></h2>
                 </header>
                 <div class="post__main">
-                    <?php switch ($post['type']):
+                    <?php switch ($post['class_name']):
 
-                        case 'post-quote': ?>
+                        case 'quote': ?>
                             <blockquote>
                                 <p>
                                     <?= htmlspecialchars($post['content']); ?>
                                 </p>
-                                <cite><?= htmlspecialchars($post['user_name']); ?></cite>
+                                <cite><?= htmlspecialchars($post['quote_author']); ?></cite>
                             </blockquote>
                             <?php break; ?>
 
-                        <?php case 'post-link': ?>
+                        <?php case 'link': ?>
                             <div class="post-link__wrapper">
-                                <a class="post-link__external" href="http://<?= htmlspecialchars($post['content']); ?>" title="Перейти по ссылке">
+                                <a class="post-link__external" href="http://<?= htmlspecialchars($post['link']); ?>" title="Перейти по ссылке">
                                     <div class="post-link__info-wrapper">
                                         <div class="post-link__icon-wrapper">
                                             <img src="https://www.google.com/s2/favicons?domain=vitadental.ru" alt="Иконка">
@@ -114,21 +83,21 @@
                                             <h3><?= htmlspecialchars($post['title']); ?></h3>
                                         </div>
                                     </div>
-                                    <span><?= htmlspecialchars($post['content']); ?></span>
+                                    <span><?= htmlspecialchars($post['link']); ?></span>
                                 </a>
                             </div>
                             <?php break; ?>
 
-                        <?php case 'post-photo': ?>
+                        <?php case 'photo': ?>
                             <div class="post-photo__image-wrapper">
-                                <img src="<?= htmlspecialchars($post['content']); ?>" alt="<?= htmlspecialchars($post['title']); ?>" width="360" height="240">
+                                <img src="<?= htmlspecialchars($post['photo']); ?>" alt="<?= htmlspecialchars($post['title']); ?>" width="360" height="240">
                             </div>
                             <?php break; ?>
 
-                        <?php case 'post-video': ?>
+                        <?php case 'video': ?>
                             <div class="post-video__block">
                                 <div class="post-video__preview">
-                                    <?=embed_youtube_cover(htmlspecialchars($post['content'])); ?>
+                                    <?=embed_youtube_cover(htmlspecialchars($post['video'])); ?>
                                     <img src="img/coast-medium.jpg" alt="Превью к видео" width="360" height="188">
                                 </div>
                                 <a href="post-details.html" class="post-video__play-big button">
@@ -140,7 +109,7 @@
                             </div>
                             <?php break; ?>
 
-                        <?php case 'post-text':
+                        <?php case 'text':
                             $post_content = cut_text(htmlspecialchars($post['content']));
                             ?>
                             <p><?= $post_content; ?></p>
@@ -160,8 +129,8 @@
                                 <img class="post__author-avatar" src="<?= $post['avatar']; ?>" alt="Аватар пользователя">
                             </div>
                             <div class="post__info">
-                                <b class="post__author-name"><?= htmlspecialchars($post['user_name']); ?></b>
-                                <time class="post__time" datetime="<?= $post_date; ?>" title="<?= date_format(date_create($post_date), 'd.m.Y H:i'); ?>"><?= format_time($post_date); ?></time>
+                                <b class="post__author-name"><?= htmlspecialchars($post['login']); ?></b>
+                                <time class="post__time" datetime="<?= $post['dt_add']; ?>" title="<?= date_format(date_create($post['dt_add']), 'd.m.Y H:i'); ?>"><?= format_time($post['dt_add']); ?></time>
                             </div>
                         </a>
                     </div>
