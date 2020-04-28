@@ -1,0 +1,127 @@
+<?php
+function cut_text(string $text, int $max_length = 300): string
+{
+    $text_length = mb_strlen($text);
+
+    if ($text_length < $max_length) {
+        return $text;
+    }
+
+    $words = explode(' ', $text);
+    $cutted_text = '';
+    $index = 0;
+
+    while (mb_strlen($cutted_text . $words[$index]) <= $max_length) {
+        $cutted_text .= "{$words[$index]} ";
+
+        ++$index;
+    }
+
+    $cutted_text .= '...';
+
+    return $cutted_text;
+}
+
+function format_time($date) {
+    define('WEEK', 7);
+
+    $dt_current = date_create('now');
+    $dt_date = date_create($date);
+    $dt_diff = date_diff($dt_current, $dt_date);
+    $date_diff_unix = strtotime(date_interval_format($dt_diff, '%Y-%M-%D %H:%I'));
+    $date_int = null;
+    $noun_plural_form = null;
+
+    switch (true) {
+        case ($date_diff_unix < strtotime('00-00-00 01:00')):
+            $date_int = idate('i', $date_diff_unix);
+            $noun_plural_form = get_noun_plural_form($date_int, 'минуту', 'минуты', 'минут');
+
+            break;
+
+        case ($date_diff_unix < strtotime('00-00-01 00:00')):
+            $date_int = idate('H', $date_diff_unix);
+            $noun_plural_form = get_noun_plural_form($date_int, 'час', 'часа', 'часов');
+
+            break;
+
+        case ($date_diff_unix < strtotime('00-00-07 00:00')):
+            $date_int = idate('d', $date_diff_unix);
+            $noun_plural_form = get_noun_plural_form($date_int, 'день', 'дня', 'дней');
+
+            break;
+
+        case ($date_diff_unix < strtotime('00-01-00 00:00')):
+            $date_int = floor(idate('d', $date_diff_unix) / WEEK);
+            $noun_plural_form = get_noun_plural_form($date_int, 'неделю', 'недели', 'недель');
+
+            break;
+
+        default:
+            $date_int = idate('m', $date_diff_unix);
+            $noun_plural_form = get_noun_plural_form($date_int, 'месяц', 'месяца', 'месяцев');
+
+            break;
+    }
+
+    return "$date_int $noun_plural_form ";
+}
+
+function fetch($connection, $sql_request) {
+    $query_result = mysqli_query($connection, $sql_request);
+
+    if (!$query_result) {
+        print 'Ошибка SQL: ' . mysqli_error($connection);
+        return;
+    }
+
+    return $query_result;
+}
+
+function fetch_all($connection, $sql_request) {
+    $query_result = fetch($connection, $sql_request);
+
+    return mysqli_fetch_all($query_result, MYSQLI_ASSOC);
+}
+
+function fetch_assoc($connection, $sql_request) {
+    $query_result = fetch($connection, $sql_request);
+
+    return mysqli_fetch_assoc($query_result);
+}
+
+function get_sorting_field($active_sorting_type) {
+    $sort_field = 'show_count';
+
+    if ($active_sorting_type == 'date') {
+        $sort_field = 'dt_add';
+    }
+
+    if ($active_sorting_type == 'likes') {
+        $sort_field = 'likes_count';
+    }
+
+    return $sort_field;
+}
+
+function get_query_href($params, $path) {
+    $current_params = $_GET;
+
+    $merged_params = array_merge($current_params, $params);
+
+    $query = http_build_query($merged_params);
+    $url = $path . "?" . $query;
+
+    return $url;
+}
+
+function get_sorting_order() {
+
+}
+//function fetch_all($connection, $sql_request, $data = []) {
+//    $stmt = db_get_prepare_stmt($connection, $sql_request, $data);
+//    mysqli_stmt_execute($stmt);
+//    $query_result = mysqli_stmt_get_result($stmt);
+//
+//    return mysqli_fetch_all($query_result, MYSQLI_ASSOC);
+//}
