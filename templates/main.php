@@ -8,7 +8,8 @@
                 <b class="popular__sorting-caption sorting__caption">Сортировка:</b>
                 <ul class="popular__sorting-list sorting__list">
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link <?= !$active_sorting_type ? 'sorting__link--active' :''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : '' ; ?>" href="<?= get_query_href(['sorting-type' => null, 'sorting-order' => $sorting_order !== 'asc' ? 'asc' : null], '/'); ?>">
+                        <a class="sorting__link <?= !$active_sorting_type ? 'sorting__link--active' :''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : ''; ?>"
+                           href="<?= get_query_href(['sorting-type' => null, 'sorting-order' => (!$active_sorting_type and $sorting_order !== 'asc') ? 'asc' : null], '/'); ?>">
                             <span>Популярность</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -16,7 +17,8 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link <?= $active_sorting_type === 'likes' ? 'sorting__link--active' :''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : '' ; ?>" href="<?= get_query_href(['sorting-type' => 'likes', 'sorting-order' => $sorting_order !== 'asc' ? 'asc' : null], '/'); ?>">
+                        <a class="sorting__link <?= $active_sorting_type === 'likes' ? 'sorting__link--active' :''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : ''; ?>"
+                           href="<?= get_query_href(['sorting-type' => 'likes', 'sorting-order' => ($active_sorting_type === 'likes' and $sorting_order !== 'asc') ? 'asc' : null], '/'); ?>">
                             <span>Лайки</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -24,7 +26,8 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link <?= $active_sorting_type === 'date' ? 'sorting__link--active' :''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : '' ; ?>" href="<?= get_query_href(['sorting-type' => 'date', 'sorting-order' => $sorting_order !== 'asc' ? 'asc' : null], '/'); ?>">
+                        <a class="sorting__link <?= $active_sorting_type === 'date' ? 'sorting__link--active' :''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : ''; ?>"
+                           href="<?= get_query_href(['sorting-type' => 'date', 'sorting-order' => ($active_sorting_type === 'date' and $sorting_order !== 'asc') ? 'asc' : null], '/'); ?>">
                             <span>Дата</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -37,14 +40,16 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?= !$active_content_type ? 'filters__button--active' : ''; ?>" href="/">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?= !$active_content_type ? 'filters__button--active' : ''; ?>"
+                           href="<?= get_query_href(['content-type' => null, 'sorting-type' => null, 'sorting-order' => null], '/'); ?>">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach ($content_types as $content_type):
                         $type = $content_type['class_name']; ?>
                         <li class="popular__filters-item filters__item">
-                            <a class="filters__button filters__button--<?= $content_type['class_name']; ?> button <?= $content_type['id'] === $active_content_type ? 'filters__button--active' : ''; ?>" href="/?content-type=<?= $content_type['id']; ?>">
+                            <a class="filters__button filters__button--<?= $content_type['class_name']; ?> button <?= $content_type['id'] === $active_content_type ? 'filters__button--active' : ''; ?>"
+                               href="<?= get_query_href(['content-type' => $content_type['id'], 'sorting-type' => null, 'sorting-order' => null], '/'); ?>">
                                 <span class="visually-hidden"><?= $content_type['title']; ?></span>
                                 <svg class="filters__icon" width="<?= $content_type_size[$type]['width']; ?>" height="<?= $content_type_size[$type]['height']; ?>">
                                     <use xlink:href="#icon-filter-<?= $content_type['class_name']; ?>"></use>

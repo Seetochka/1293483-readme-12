@@ -6,60 +6,9 @@
                 <h2 class="visually-hidden">Публикация</h2>
                 <div class="post-details__wrapper post-photo">
                     <div class="post-details__main-block post post--details">
-                        <?php switch ($post['class_name']):
 
-                            case 'quote': ?>
-                                <div class="post-details__image-wrapper post-quote">
-                                    <div class="post__main">
-                                        <blockquote>
-                                            <p>
-                                                <?= htmlspecialchars($post['content']); ?>
-                                            </p>
-                                            <cite><?= htmlspecialchars($post['quote_author']); ?></cite>
-                                        </blockquote>
-                                    </div>
-                                </div>
-                                <?php break; ?>
+                        <?= $post_content; ?>
 
-                            <?php case 'link': ?>
-                                <div class="post__main">
-                                    <div class="post-link__wrapper">
-                                        <a class="post-link__external" href="http://<?= htmlspecialchars($post['link']); ?>" title="Перейти по ссылке">
-                                            <div class="post-link__info-wrapper">
-                                                <div class="post-link__icon-wrapper">
-                                                    <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($post['link']); ?>" alt="Иконка">
-                                                </div>
-                                                <div class="post-link__info">
-                                                    <h3><?= htmlspecialchars($post['title']); ?></h3>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                </div>
-                                <?php break; ?>
-
-                            <?php case 'photo': ?>
-                                <div class="post-details__image-wrapper post-photo__image-wrapper">
-                                    <img src="<?= htmlspecialchars($post['photo']); ?>" alt="Фото от пользователя" width="760" height="507">
-                                </div>
-                                <?php break; ?>
-
-                            <?php case 'video': ?>
-                                <div class="post-details__image-wrapper post-photo__image-wrapper">
-                                    <?=embed_youtube_cover(htmlspecialchars($post['video'])); ?>
-                                </div>
-                                <?php break; ?>
-
-                            <?php case 'text': ?>
-                                <div class="post-details__image-wrapper post-text">
-                                    <div class="post__main">
-                                        <p>
-                                            <?= htmlspecialchars($post['content']); ?>
-                                        </p>
-                                    </div>
-                                </div>
-                                <?php break; ?>
-                        <?php endswitch; ?>
                         <div class="post__indicators">
                             <div class="post__buttons">
                                 <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">

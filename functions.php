@@ -1,4 +1,7 @@
 <?php
+
+use ___PHPSTORM_HELPERS\object;
+
 function cut_text(string $text, int $max_length = 300): string
 {
     $text_length = mb_strlen($text);
@@ -22,7 +25,7 @@ function cut_text(string $text, int $max_length = 300): string
     return $cutted_text;
 }
 
-function format_time($date) {
+function format_time($date): string {
     define('WEEK', 7);
 
     $dt_current = date_create('now');
@@ -67,7 +70,7 @@ function format_time($date) {
     return "$date_int $noun_plural_form ";
 }
 
-function fetch($connection, $sql_request) {
+function fetch($connection, string $sql_request) {
     $query_result = mysqli_query($connection, $sql_request);
 
     if (!$query_result) {
@@ -78,19 +81,19 @@ function fetch($connection, $sql_request) {
     return $query_result;
 }
 
-function fetch_all($connection, $sql_request) {
+function fetch_all($connection, string $sql_request): array {
     $query_result = fetch($connection, $sql_request);
 
     return mysqli_fetch_all($query_result, MYSQLI_ASSOC);
 }
 
-function fetch_assoc($connection, $sql_request) {
+function fetch_assoc($connection, string $sql_request): array {
     $query_result = fetch($connection, $sql_request);
 
     return mysqli_fetch_assoc($query_result);
 }
 
-function get_sorting_field($active_sorting_type) {
+function get_sorting_field(?string $active_sorting_type): string {
     $sort_field = 'show_count';
 
     if ($active_sorting_type == 'date') {
@@ -104,24 +107,10 @@ function get_sorting_field($active_sorting_type) {
     return $sort_field;
 }
 
-function get_query_href($params, $path) {
+function get_query_href(array $params, string $path): string {
     $current_params = $_GET;
-
     $merged_params = array_merge($current_params, $params);
-
     $query = http_build_query($merged_params);
-    $url = $path . "?" . $query;
 
-    return $url;
+    return $path . ($query ? "?$query" : '');
 }
-
-function get_sorting_order() {
-
-}
-//function fetch_all($connection, $sql_request, $data = []) {
-//    $stmt = db_get_prepare_stmt($connection, $sql_request, $data);
-//    mysqli_stmt_execute($stmt);
-//    $query_result = mysqli_stmt_get_result($stmt);
-//
-//    return mysqli_fetch_all($query_result, MYSQLI_ASSOC);
-//}

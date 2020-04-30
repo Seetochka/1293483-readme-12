@@ -18,15 +18,27 @@ if (!$link) {
     }
 
     $post = get_sql_post($link, $post_id);
+
+    if(!isset($post['id'])) {
+        header("HTTP/1.0 404 Not Found");
+    }
+
     $comments = get_sql_comments($link, $post_id);
+    $comments_count = count($comments);
     $user = get_sql_user($link, $post_id);
 }
 
+$post_content = include_template("post-{$post['class_name']}.php", [
+    'post' => $post,
+]);
+
 $page_content = include_template('post.php', [
+    'post_content' => $post_content,
     'post' => $post,
     'comments' => $comments,
     'user' => $user,
     'MAX_COMMENT_COUNT' => MAX_COMMENT_COUNT,
+    'comments_count' => $comments_count,
 ]);
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
