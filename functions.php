@@ -1,7 +1,4 @@
 <?php
-
-use ___PHPSTORM_HELPERS\object;
-
 function cut_text(string $text, int $max_length = 300): string
 {
     $text_length = mb_strlen($text);
@@ -74,23 +71,30 @@ function fetch($connection, string $sql_request) {
     $query_result = mysqli_query($connection, $sql_request);
 
     if (mysqli_errno($connection) > 0) {
-        $errorMsg = 'Не удалось связать подготовленное выражение с параметрами: ' . mysqli_error($connection);
-        die($errorMsg);
+        $error_msg = 'Не удалось выполнить запрос: ' . mysqli_error($connection);
+        die($error_msg);
     }
 
     return $query_result;
 }
 
-function fetch_all($connection, string $sql_request): array {
-    $query_result = fetch($connection, $sql_request);
+function get_prepare_stmt($connection, string $sql_request, array  $data = []) {
+    $stmt = db_get_prepare_stmt($connection, $sql_request, $data);
+    mysqli_stmt_execute($stmt);
 
-    return mysqli_fetch_all($query_result, MYSQLI_ASSOC);
+    return mysqli_stmt_get_result($stmt);
 }
 
-function fetch_assoc($connection, string $sql_request): array {
-    $query_result = fetch($connection, $sql_request);
+function fetch_all($connection, string $sql_request, array  $data = []): ?array {
+    $result = get_prepare_stmt($connection, $sql_request, $data);
 
-    return mysqli_fetch_assoc($query_result);
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+function fetch_assoc($connection, string $sql_request, array  $data = []): ?array {
+    $result = get_prepare_stmt($connection, $sql_request, $data);
+
+    return mysqli_fetch_assoc($result);
 }
 
 function get_sorting_field(?string $active_sorting_type): string {

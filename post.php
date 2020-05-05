@@ -10,7 +10,8 @@ define('MAX_COMMENT_COUNT', 6);
 
 if (!$link) {
     header("HTTP/1.0 500 Internal Server Error");
-    die();
+    $error_msg = 'Не удалось выполнить подключение к серверу: ' . mysqli_connect_error();
+    die($error_msg);
 }
 
 $post_id = isset($_GET['id']) && ctype_digit($_GET['id']) ? $_GET['id'] : null;
@@ -19,7 +20,8 @@ $post = get_sql_post($link, $post_id);
 
 if(!$post) {
     header("HTTP/1.0 404 Not Found");
-    die();
+    $error_msg = 'Не удалось выполнить запрос: ' . mysqli_error($link);
+    die($error_msg);
 }
 
 $comments = get_sql_comments($link, $post_id);
