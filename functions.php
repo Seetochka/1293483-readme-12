@@ -73,9 +73,9 @@ function format_time($date): string {
 function fetch($connection, string $sql_request) {
     $query_result = mysqli_query($connection, $sql_request);
 
-    if (!$query_result) {
-        print 'Ошибка SQL: ' . mysqli_error($connection);
-        return;
+    if (mysqli_errno($connection) > 0) {
+        $errorMsg = 'Не удалось связать подготовленное выражение с параметрами: ' . mysqli_error($connection);
+        die($errorMsg);
     }
 
     return $query_result;
@@ -94,17 +94,14 @@ function fetch_assoc($connection, string $sql_request): array {
 }
 
 function get_sorting_field(?string $active_sorting_type): string {
-    $sort_field = 'show_count';
-
-    if ($active_sorting_type == 'date') {
-        $sort_field = 'dt_add';
+    switch ($active_sorting_type) {
+        case 'date':
+            return 'dt_add';
+        case 'likes':
+            return 'likes_count';
+        default:
+            return 'show_count';
     }
-
-    if ($active_sorting_type == 'likes') {
-        $sort_field = 'likes_count';
-    }
-
-    return $sort_field;
 }
 
 function get_query_href(array $params, string $path): string {

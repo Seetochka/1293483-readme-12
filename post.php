@@ -9,24 +9,22 @@ $user_name = 'Светлана';
 define('MAX_COMMENT_COUNT', 6);
 
 if (!$link) {
-    print mysqli_connect_error();
-} else {
-    $post_id = null;
-
-    if (isset($_GET['id'])) {
-        $post_id = $_GET['id'];
-    }
-
-    $post = get_sql_post($link, $post_id);
-
-    if(!isset($post['id'])) {
-        header("HTTP/1.0 404 Not Found");
-    }
-
-    $comments = get_sql_comments($link, $post_id);
-    $comments_count = count($comments);
-    $user = get_sql_user($link, $post_id);
+    header("HTTP/1.0 500 Internal Server Error");
+    die();
 }
+
+$post_id = isset($_GET['id']) && ctype_digit($_GET['id']) ? $_GET['id'] : null;
+
+$post = get_sql_post($link, $post_id);
+
+if(!$post) {
+    header("HTTP/1.0 404 Not Found");
+    die();
+}
+
+$comments = get_sql_comments($link, $post_id);
+$comments_count = get_sql_comments_count($link, $post_id);
+$user = get_sql_user($link, $post['user_id']);
 
 $post_content = include_template("post-{$post['class_name']}.php", [
     'post' => $post,
@@ -37,7 +35,6 @@ $page_content = include_template('post.php', [
     'post' => $post,
     'comments' => $comments,
     'user' => $user,
-    'MAX_COMMENT_COUNT' => MAX_COMMENT_COUNT,
     'comments_count' => $comments_count,
 ]);
 $layout_content = include_template('layout.php', [
