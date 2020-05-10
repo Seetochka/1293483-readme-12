@@ -3,10 +3,7 @@ require_once 'helpers.php';
 require_once 'init.php';
 require_once 'functions.php';
 require_once 'sql-queries.php';
-
-$is_auth = rand(0, 1);
-$user_name = 'Светлана';
-define('MAX_COMMENT_COUNT', 6);
+require_once 'constants.php';
 
 if (!$link) {
     header("HTTP/1.0 500 Internal Server Error");

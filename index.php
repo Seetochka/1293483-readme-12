@@ -3,19 +3,9 @@ require_once 'helpers.php';
 require_once 'init.php';
 require_once 'functions.php';
 require_once 'sql-queries.php';
+require_once 'constants.php';
 
 date_default_timezone_set('Europe/Moscow');
-
-$is_auth = rand(0, 1);
-$user_name = 'Светлана';
-
-$content_type_size = [
-    'quote' => ['width' => '21', 'height' => '20'],
-    'link' => ['width' => '21', 'height' => '18'],
-    'photo' => ['width' => '22', 'height' => '18'],
-    'video' => ['width' => '24', 'height' => '16'],
-    'text' => ['width' => '20', 'height' => '21']
-];
 
 if (!$link) {
     header("HTTP/1.0 500 Internal Server Error");
@@ -28,9 +18,7 @@ $active_content_type = filter_input(INPUT_GET, 'content-type');
 $active_sorting_type = filter_input(INPUT_GET, 'sorting-type');
 $sorting_field = get_sorting_field($active_sorting_type);
 
-$get_sorting_order = filter_input(INPUT_GET, 'sorting-order');
-
-$sorting_order = $get_sorting_order ? $get_sorting_order : 'desc';
+$sorting_order = filter_input(INPUT_GET, 'sorting-order') ?? 'desc';
 
 $query_params = [];
 

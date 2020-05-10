@@ -62,3 +62,58 @@ function get_sql_user($connection, int $user_id): array {
 
     return fetch_assoc($connection, $sql_user, [$user_id]);
 }
+
+function create_sql_post($connection, $content_type, $post) {
+    $sql_post = 'INSERT INTO posts (dt_add, title, user_id, content_type_id';
+
+    switch ($content_type) {
+        case 'photo':
+            $sql_post .= ', photo) VALUES (NOW(), ?, 2, ?, ?)';
+            break;
+        case 'video':
+            $sql_post .= ', video) VALUES (NOW(), ?, 1, ?, ?)';
+            break;
+        case 'text':
+            $sql_post .= ', content) VALUES (NOW(), ?, 3, ?, ?)';
+            break;
+        case 'quote':
+            $sql_post .= ', content, quote_author) VALUES (NOW(), ?, 2, ?, ?, ?)';
+            break;
+        case 'link':
+            $sql_post .= ', link) VALUES (NOW(), ?, 3, ?, ?)';
+            break;
+    }
+
+    $post_without_hashtags = $post;
+    unset($post_without_hashtags['hashtags']);
+
+    get_prepare_stmt($connection, $sql_post, $post_without_hashtags);
+    $post_id = mysqli_insert_id($connection);
+    create_sql_hashtags($connection, $post_id, $post['hashtags']);
+    return $post_id;
+}
+
+function get_sql_hashtags($connection) {
+    $sql_hashtags = 'SELECT h.id, h.hashtag_name FROM hashtags h';
+
+    $query_result = fetch($connection, $sql_hashtags);
+
+    return mysqli_fetch_all($query_result, MYSQLI_ASSOC);
+}
+
+function create_sql_hashtags($connection, $post_id, $hashtags) {
+    $hashtags_database = get_sql_hashtags($connection);
+
+    foreach ($hashtags as $hashtag) {
+        if (in_array($hashtag, $hashtags_database)) {
+            $hashtag_id = find_index($hashtags_database, 'hashtag_name', $hashtag);
+        } else {
+            $sql_hashtag = 'INSERT INTO hashtags (hashtag_name) VALUES (?)';
+            get_prepare_stmt($connection, $sql_hashtag, [$hashtag]);
+            $hashtag_id = mysqli_insert_id($connection);
+        }
+
+        $sql_post_hashtag = 'INSERT INTO post_hashtag (post_id, hashtag_id) VALUES (?, ?)';
+        get_prepare_stmt($connection, $sql_post_hashtag, [$post_id, $hashtag_id]);
+    }
+}
