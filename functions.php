@@ -224,8 +224,22 @@ function is_correct_length(string $value, int $min = 0, int $max = INF): bool {
  * @return bool true при корректной ссылке, иначе false
  */
 function is_correct_link(string $value): bool {
-    return boolval(filter_var($value, FILTER_VALIDATE_URL));
-}
+    $ar_url = parse_url($value);
+
+    if (!array_key_exists('scheme', $ar_url) || in_array($ar_url['scheme'], array('http', 'https'))) {
+        if (array_key_exists('host', $ar_url) && !empty($ar_url['host'])) {
+            return true;
+        } elseif (preg_match("/^\w+\.[\w\.]+(\/.*)?$/", $ar_url['path'])) {
+            return true;
+        }
+    }
+
+    return false;
+}/*функция filter_var($value, FILTER_VALIDATE_URL) валидирует ссылки только с протоколами (хотя в документации пишет наоборот),
+то есть, если я, например, даю ссылку на видео YouTube без протокола, то выдает, что ссылка неверная,
+принудительное прописывани протокола приводит к тому, что любой набор букв становится валидной ссылкой.
+Но по критерию Б15 мне для валидации URL обязательно использование filter_var
+*/
 
 /**
  * Проверяет является ли строка ссылкой на видео YouTube
@@ -234,6 +248,7 @@ function is_correct_link(string $value): bool {
  */
 function is_link_youtube(string $value): bool {
     $youtube_hosts = ['www.youtube.com', 'youtube.com', 'youtu.be'];
+    $value = check_protocol($value);
 
     if (in_array(parse_url($value, PHP_URL_HOST), $youtube_hosts)) {
         return boolval(extract_youtube_id($value));
@@ -248,7 +263,7 @@ function is_link_youtube(string $value): bool {
  * @return bool true если возможно загрузить файл по ссылке, иначе false
  */
 function is_available_resource(string $value): bool {
-    $headers = get_headers($value);
+    $headers = get_headers(check_protocol($value), 1);
 
     return boolval(strpos($headers[0], '200'));
 }
@@ -294,11 +309,18 @@ function is_correct_file_size(int $value, int $max_file_size): bool {
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
 function validate_title(string $value): ?string {
-    if (!is_filled($value)) {
-        return'Это поле должно быть заполнено';
+    $error_message = null;
+
+    switch (false) {
+        case (is_filled($value)):
+            $error_message = 'Это поле должно быть заполнено';
+            break;
+        case (is_correct_length($value, 0, DATABASE_VARCHAR_MAX_SIZE)):
+            $error_message = 'Введите значение до ' . DATABASE_VARCHAR_MAX_SIZE . ' символов';
+            break;
     }
 
-    return null;
+    return $error_message;
 }
 
 /**
@@ -331,7 +353,7 @@ function validate_tags($value): ?string {
         return 'Это поле должно быть заполнено';
     }
 
-    $tag_array = explode(' ', $value);
+    $tag_array = array_filter(explode(' ', $value));
 
     foreach ($tag_array as $tag) {
         if (!is_tag($tag)) {
@@ -381,11 +403,18 @@ function validate_content_quote($value): ?string {
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
 function validate_quote_author($value): ?string {
-    if (!is_filled($value)) {
-        return'Это поле должно быть заполнено';
+    $error_message = null;
+
+    switch (false) {
+        case (is_filled($value)):
+            $error_message = 'Это поле должно быть заполнено';
+            break;
+        case (is_correct_length($value, 0, DATABASE_VARCHAR_MAX_SIZE)):
+            $error_message = 'Введите значение до ' . DATABASE_VARCHAR_MAX_SIZE . ' символов';
+            break;
     }
 
-    return null;
+    return $error_message;
 }
 
 /**
@@ -418,7 +447,11 @@ function validate_photo(array $value): ?string {
 function validate_link_photo($value): ?string {
     $error_message = null;
     $image_mime_types = ['image/jpeg', 'image/png', 'image/gif'];
-    $headers = get_headers($value, 1);
+    $headers = [];
+
+    if (is_correct_link($value)) {
+        $headers = get_headers(check_protocol($value), 1);
+    }
 
     switch (false) {
         case (is_filled($value)):
@@ -486,8 +519,17 @@ function validate(array $data_array, array $rules_array): array  {
  * @return string Имя записанного файла
  */
 function upload_file($file): string {
+    $file_extension = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/gif' => 'gif'
+    ];
+
     if (is_string($file)) {
-        $filename = 'uploads/' . uniqid() . '.' . pathinfo(strtok($file, '?'), PATHINFO_EXTENSION);
+        $file = check_protocol($file);
+        $headers = get_headers($file, 1);
+        $path = $file_extension[$headers['Content-Type']];
+        $filename = 'uploads/' . uniqid() . '.' . $path;
 
         file_put_contents($filename, file_get_contents($file));
     } else {
@@ -502,16 +544,12 @@ function upload_file($file): string {
 }
 
 /**
- * Подготавливает массив с данными в зависимости от типа контента
+ * Преобразует массив с данными если тип контента - Фото
  * @param array Первоначальный массив с данными
  * @param string $content_type Тип контента
  * @return array Массив с данными
  */
 function prepare_post_data(array $post, string $content_type): array {
-    $post['hashtags'] = explode(' ', $post['hashtag_name']);
-    unset($post['hashtag_name']);
-
-
     if ($content_type === 'photo') {
         if (!empty($_FILES['photo']['name'])) {
             $post['photo'] = upload_file($_FILES['photo']);
@@ -560,4 +598,29 @@ function prepare_post_rules(string $content_type): array {
     }
 
     return $rules;
+}
+
+/**
+ * Ищет id тега в массиве
+ * @param string $compared Тег, id которого мы хотим найти
+ * @param array $array Массив с тегами
+ * @return int | null id тега или null, если такого тега нет в массиве
+ */
+function find_id(string $compared, array $array): ?int {
+    foreach ($array as $key => $value) {
+        if ($value['hashtag_name'] === $compared) {
+            return $value['id'];
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Проверяет наличие протокола в ссылке, если его нет - добавляет
+ * @param string $value Ссылка
+ * @return string Ссылка с протоколом
+ */
+function check_protocol(string $value): string {
+    return parse_url($value, PHP_URL_SCHEME) ? $value : "http://{$value}";
 }

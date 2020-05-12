@@ -49,7 +49,7 @@ $add_post_content = include_template("add-post-{$content_types[$index]['class_na
     'index' => $index,
     'content_types' => $content_types,
     'post' => $post_to_validate,
-    'errors' => $errors,
+    'errors' => $errors ?? [],
     'title_errors' => $title_errors,
 ]);
 
@@ -61,7 +61,7 @@ $page_content = include_template('add-post.php', [
     'index' => $index,
     'form_title' => $form_title,
     'post' => $post_to_validate,
-    'errors' => $errors,
+    'errors' => $errors ?? [],
     'title_errors' => $title_errors,
 ]);
 

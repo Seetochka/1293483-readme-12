@@ -64,6 +64,9 @@ function get_sql_user($connection, int $user_id): array {
 }
 
 function create_sql_post($connection, $content_type, $post) {
+    $hashtags = array_filter(explode(' ', $post['hashtag_name']));
+    unset($post['hashtag_name']);
+
     $sql_post = 'INSERT INTO posts (dt_add, title, user_id, content_type_id';
 
     switch ($content_type) {
@@ -84,12 +87,9 @@ function create_sql_post($connection, $content_type, $post) {
             break;
     }
 
-    $post_without_hashtags = $post;
-    unset($post_without_hashtags['hashtags']);
-
-    get_prepare_stmt($connection, $sql_post, $post_without_hashtags);
+    get_prepare_stmt($connection, $sql_post, $post);
     $post_id = mysqli_insert_id($connection);
-    create_sql_hashtags($connection, $post_id, $post['hashtags']);
+    create_sql_hashtags($connection, $post_id, $hashtags);
     return $post_id;
 }
 
@@ -103,11 +103,14 @@ function get_sql_hashtags($connection) {
 
 function create_sql_hashtags($connection, $post_id, $hashtags) {
     $hashtags_database = get_sql_hashtags($connection);
+    $hashtag_id = null;
 
     foreach ($hashtags as $hashtag) {
-        if (in_array($hashtag, $hashtags_database)) {
-            $hashtag_id = find_index($hashtags_database, 'hashtag_name', $hashtag);
-        } else {
+        if (count($hashtags_database)) {
+            $hashtag_id = find_id($hashtag, $hashtags_database);
+        }
+
+        if (!$hashtag_id) {
             $sql_hashtag = 'INSERT INTO hashtags (hashtag_name) VALUES (?)';
             get_prepare_stmt($connection, $sql_hashtag, [$hashtag]);
             $hashtag_id = mysqli_insert_id($connection);

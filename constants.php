@@ -13,3 +13,4 @@ $content_type_size = [
 define('MAX_COMMENT_COUNT', 6);
 define('POST_QUOTE_MAX_LENGTH', 70);
 define('POST_PHOTO_MAX_FILE_SIZE', 10485760);
+define('DATABASE_VARCHAR_MAX_SIZE', 128);
