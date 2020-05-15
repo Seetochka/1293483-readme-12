@@ -224,22 +224,8 @@ function is_correct_length(string $value, int $min = 0, int $max = INF): bool {
  * @return bool true при корректной ссылке, иначе false
  */
 function is_correct_link(string $value): bool {
-    $ar_url = parse_url($value);
-
-    if (!array_key_exists('scheme', $ar_url) || in_array($ar_url['scheme'], array('http', 'https'))) {
-        if (array_key_exists('host', $ar_url) && !empty($ar_url['host'])) {
-            return true;
-        } elseif (preg_match("/^\w+\.[\w\.]+(\/.*)?$/", $ar_url['path'])) {
-            return true;
-        }
-    }
-
-    return false;
-}/*функция filter_var($value, FILTER_VALIDATE_URL) валидирует ссылки только с протоколами (хотя в документации пишет наоборот),
-то есть, если я, например, даю ссылку на видео YouTube без протокола, то выдает, что ссылка неверная,
-принудительное прописывани протокола приводит к тому, что любой набор букв становится валидной ссылкой.
-Но по критерию Б15 мне для валидации URL обязательно использование filter_var
-*/
+    return boolval(filter_var(check_protocol($value), FILTER_VALIDATE_URL)) && @get_headers(check_protocol($value)) !== false;
+}
 
 /**
  * Проверяет является ли строка ссылкой на видео YouTube

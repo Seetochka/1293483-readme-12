@@ -7,12 +7,6 @@ require_once 'constants.php';
 
 date_default_timezone_set('Europe/Moscow');
 
-if (!$link) {
-    header("HTTP/1.0 500 Internal Server Error");
-    $error_msg = 'Не удалось выполнить подключение к серверу: ' . mysqli_connect_error();
-    die($error_msg);
-}
-
 $active_content_type = filter_input(INPUT_GET, 'content-type');
 
 $active_sorting_type = filter_input(INPUT_GET, 'sorting-type');

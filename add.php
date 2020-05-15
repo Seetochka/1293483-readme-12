@@ -5,12 +5,6 @@ require_once 'functions.php';
 require_once 'sql-queries.php';
 require_once 'constants.php';
 
-if (!$link) {
-    header("HTTP/1.0 500 Internal Server Error");
-    $error_msg = 'Не удалось выполнить подключение к серверу: ' . mysqli_connect_error();
-    die($error_msg);
-}
-
 $form_title = ['фото', 'видео', 'текста', 'цитаты', 'ссылки'];
 
 $content_types = get_sql_content_types($link);
