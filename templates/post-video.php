@@ -1,3 +1,3 @@
 <div class="post-details__image-wrapper post-photo__image-wrapper">
-    <?=embed_youtube_cover(htmlspecialchars($post['video'])); ?>
+    <?= embed_youtube_video(htmlspecialchars($post['video'])); ?>
 </div>

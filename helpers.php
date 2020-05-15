@@ -217,6 +217,8 @@ function extract_youtube_id($youtube_url)
 {
     $id = false;
 
+    $youtube_url = check_protocol($youtube_url);//если в ссылке не было протокола не отображает видео на странице поста и изображение на странице популярного
+
     $parts = parse_url($youtube_url);
 
     if ($parts) {

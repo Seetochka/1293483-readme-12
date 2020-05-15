@@ -3,16 +3,7 @@ require_once 'helpers.php';
 require_once 'init.php';
 require_once 'functions.php';
 require_once 'sql-queries.php';
-
-$is_auth = rand(0, 1);
-$user_name = 'Светлана';
-define('MAX_COMMENT_COUNT', 6);
-
-if (!$link) {
-    header("HTTP/1.0 500 Internal Server Error");
-    $error_msg = 'Не удалось выполнить подключение к серверу: ' . mysqli_connect_error();
-    die($error_msg);
-}
+require_once 'constants.php';
 
 $post_id = isset($_GET['id']) && ctype_digit($_GET['id']) ? $_GET['id'] : null;
 
