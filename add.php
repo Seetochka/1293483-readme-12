@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $post_to_create = remove_space(prepare_post_data($_POST, $content_types[$index]['class_name']));
         $post_id = create_sql_post($link, $content_types[$index]['class_name'], $post_to_create);
 
-        header("Location: post.php?id=" . $post_id);
+        $post_id ? header("Location: post.php?id=" . $post_id) : mysqli_error($link);
     }
 }
 

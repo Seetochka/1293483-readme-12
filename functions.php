@@ -193,7 +193,7 @@ function remove_space(array $array): array {
  * @return bool true при правильном email, иначе false
  */
 function is_email(string $value): bool {
-    return boolval(filter_input(INPUT_POST, $value, FILTER_VALIDATE_EMAIL));
+    return boolval(filter_var($value, FILTER_VALIDATE_EMAIL));
 }
 
 /**
@@ -290,6 +290,15 @@ function is_correct_file_size(int $value, int $max_file_size): bool {
 }
 
 /**
+ * Проверяет, чтобы в составе пароля были минимум одна цифра и по одной букве верхнего и нижнего регистров
+ * @param string $value Пароль
+ * @return bool true соответствии пароля условию, иначе false
+ */
+function is_strong_password(string $value): bool {
+    return boolval(preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,128}$/', $value));
+}
+
+/**
  * Валидация поля Заголовок
  * @param string $value Содержимое поля Заголовок
  * @return string | null Текст ошибки или null, если валидация пройдена
@@ -314,7 +323,7 @@ function validate_title(string $value): ?string {
  * @param string $value Содержимое поля Ссылка
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_link($value): ?string {
+function validate_link(string $value): ?string {
     $error_message = null;
 
     switch (false) {
@@ -334,7 +343,7 @@ function validate_link($value): ?string {
  * @param string $value Содержимое поля Теги
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_tags($value): ?string {
+function validate_tags(string $value): ?string {
     if (!is_filled($value)) {
         return 'Это поле должно быть заполнено';
     }
@@ -355,7 +364,7 @@ function validate_tags($value): ?string {
  * @param string $value Содержимое поля Текст поста
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_content_text($value): ?string {
+function validate_content_text(string $value): ?string {
     if (!is_filled($value)) {
         return'Это поле должно быть заполнено';
     }
@@ -368,7 +377,7 @@ function validate_content_text($value): ?string {
  * @param string $value Содержимое поля Текст цитаты
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_content_quote($value): ?string {
+function validate_content_quote(string $value): ?string {
     $error_message = null;
 
     switch (false) {
@@ -388,7 +397,7 @@ function validate_content_quote($value): ?string {
  * @param string $value Содержимое поля Автор
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_quote_author($value): ?string {
+function validate_quote_author(string $value): ?string {
     $error_message = null;
 
     switch (false) {
@@ -404,8 +413,8 @@ function validate_quote_author($value): ?string {
 }
 
 /**
- * Валидация поля Фото
- * @param array $value Содержимое поля Фото
+ * Валидация загружаемого файла для поста фото
+ * @param array $value Массив с данными файла
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
 function validate_photo(array $value): ?string {
@@ -430,7 +439,7 @@ function validate_photo(array $value): ?string {
  * @param string $value Содержимое поля Ссылка из интернета
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_link_photo($value): ?string {
+function validate_link_photo(string $value): ?string {
     $error_message = null;
     $image_mime_types = ['image/jpeg', 'image/png', 'image/gif'];
     $headers = [];
@@ -462,7 +471,7 @@ function validate_link_photo($value): ?string {
  * @param string $value Содержимое поля Ссылка YouTube
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_link_youtube($value): ?string {
+function validate_link_youtube(string $value): ?string {
     $error_message = null;
 
     switch (false) {
@@ -474,6 +483,108 @@ function validate_link_youtube($value): ?string {
             break;
         case (is_link_youtube($value)):
             $error_message = 'Введите ссылку на видео с YouTube';
+            break;
+    }
+
+    return $error_message;
+}
+
+/**
+ * Валидация поля Электронная почта
+ * @param string $value Содержимое поля Электронная почта
+ * @return string | null Текст ошибки или null, если валидация пройдена
+ */
+function validate_email(string $value): ?string {
+    $error_message = null;
+
+    switch (false) {
+        case (is_filled($value)):
+            $error_message = 'Это поле должно быть заполнено';
+            break;
+        case (is_email($value)):
+            $error_message = 'Введите корректный Email';
+            break;
+    }
+
+    return $error_message;
+}
+
+/**
+ * Валидация поля Логин
+ * @param string $value Содержимое поля Логин
+ * @return string | null Текст ошибки или null, если валидация пройдена
+ */
+function validate_login(string $value): ?string {
+    $error_message = null;
+
+    switch (false) {
+        case (is_filled($value)):
+            $error_message = 'Это поле должно быть заполнено';
+            break;
+        case (is_correct_length($value, 0, DATABASE_VARCHAR_MAX_SIZE)):
+            $error_message = 'Введите значение до ' . DATABASE_VARCHAR_MAX_SIZE . ' символов';
+            break;
+    }
+
+    return $error_message;
+}
+
+/**
+ * Валидация поля Пароль
+ * @param string $value Содержимое поля Пароль
+ * @return string | null Текст ошибки или null, если валидация пройдена
+ */
+function validate_password(string $value): ?string {
+    $error_message = null;
+
+    switch (false) {
+        case (is_filled($value)):
+            $error_message = 'Это поле должно быть заполнено';
+            break;
+        case (is_strong_password($value)):
+            $error_message = 'Пароль должен содержать не менее 6 символов, в нем должны быть цифры и латинские буквы верхнего и нижнего регистров';
+            break;
+    }
+
+    return $error_message;
+}
+
+/**
+ * Валидация поля Повтор пароля
+ * @param string $value Содержимое поля Повтор пароля
+ * @return string | null Текст ошибки или null, если валидация пройдена
+ */
+function validate_password_repeat(string $value): ?string {
+    $error_message = null;
+
+    switch (false) {
+        case (is_filled($value)):
+            $error_message = 'Это поле должно быть заполнено';
+            break;
+        case ($value === $_POST['password']):
+            $error_message = 'Пароли не совпадают';
+            break;
+    }
+
+    return $error_message;
+}
+
+/**
+ * Валидация загружаемого файла для аватара
+ * @param array $value Массив с данными файла
+ * @return string | null Текст ошибки или null, если валидация пройдена
+ */
+function validate_avatar(array $value): ?string {
+    $error_message = null;
+    $image_mime_types = ['image/jpeg', 'image/png'];
+    $file_type = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $value['tmp_name']);
+
+    switch (false) {
+        case (is_correct_mime_types($file_type, $image_mime_types)):
+            $error_message = 'Загрузите изображение в формате JPEG или PNG';
+            break;
+        case (is_correct_file_size($value['size'], POST_PHOTO_MAX_FILE_SIZE)):
+            $error_message = 'Размер файла не должен превышать ' . POST_PHOTO_MAX_FILE_SIZE / 1048576 . 'МБ';
             break;
     }
 
@@ -584,22 +695,6 @@ function prepare_post_rules(string $content_type): array {
     }
 
     return $rules;
-}
-
-/**
- * Ищет id тега в массиве
- * @param string $compared Тег, id которого мы хотим найти
- * @param array $array Массив с тегами
- * @return int | null id тега или null, если такого тега нет в массиве
- */
-function find_id(string $compared, array $array): ?int {
-    foreach ($array as $key => $value) {
-        if ($value['hashtag_name'] === $compared) {
-            return $value['id'];
-        }
-    }
-
-    return null;
 }
 
 /**
