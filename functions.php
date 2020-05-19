@@ -295,7 +295,7 @@ function is_correct_file_size(int $value, int $max_file_size): bool {
  * @return bool true соответствии пароля условию, иначе false
  */
 function is_strong_password(string $value): bool {
-    return boolval(preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,128}$/', $value));
+    return boolval(preg_match('/^\S*(?=\S{6,128})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*$/', $value));
 }
 
 /**
