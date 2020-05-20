@@ -360,11 +360,11 @@ function validate_tags(string $value): ?string {
 }
 
 /**
- * Валидация поля Текст поста
- * @param string $value Содержимое поля Текст поста
+ * Валидация заполненности поля
+ * @param string $value Содержимое поля
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_content_text(string $value): ?string {
+function validate_field_completion(string $value): ?string {
     if (!is_filled($value)) {
         return'Это поле должно быть заполнено';
     }
@@ -683,7 +683,7 @@ function prepare_post_rules(string $content_type): array {
             $rules['video'] = function($value) {return validate_link_youtube($value); };
             break;
         case 'text':
-            $rules['content'] = function($value) {return validate_content_text($value); };
+            $rules['content'] = function($value) {return validate_field_completion($value); };
             break;
         case 'quote':
             $rules['content'] = function($value) {return validate_content_quote($value); };

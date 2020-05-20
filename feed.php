@@ -10,35 +10,25 @@ if (!isset($_SESSION['user'])) {
     die();
 }
 
-date_default_timezone_set('Europe/Moscow');
-
 $active_content_type = filter_input(INPUT_GET, 'content-type');
-
-$active_sorting_type = filter_input(INPUT_GET, 'sorting-type');
-$sorting_field = get_sorting_field($active_sorting_type);
-
-$sorting_order = filter_input(INPUT_GET, 'sorting-order') ?? 'desc';
-
-$query_params = [];
+$query_params['follower_id = ?'] =  $_SESSION['user']['id'];
 
 if($active_content_type) {
     $query_params['content_type_id = ?'] =  $active_content_type;
 }
 
-$posts = get_sql_posts_filters($link, $query_params, $sorting_field, $sorting_order);
+$posts = get_sql_posts_filters($link, $query_params, 'dt_add', 'desc', 100);
 $content_types = get_sql_content_types($link);
 
-$page_content = include_template('popular.php', [
+$page_content = include_template('feed.php', [
     'posts' => $posts,
     'content_types' => $content_types,
     'content_type_size' => $content_type_size,
     'active_content_type' => $active_content_type,
-    'active_sorting_type' => $active_sorting_type,
-    'sorting_order' => $sorting_order,
 ]);
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
-    'title' => 'readme: популярное',
+    'title' => 'readme: моя лента',
 ]);
 
 print ($layout_content);
