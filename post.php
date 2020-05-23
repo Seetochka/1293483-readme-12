@@ -5,6 +5,11 @@ require_once 'functions.php';
 require_once 'sql-queries.php';
 require_once 'constants.php';
 
+if (!isset($_SESSION['user'])) {
+    header("Location: /");
+    die();
+}
+
 $post_id = isset($_GET['id']) && ctype_digit($_GET['id']) ? $_GET['id'] : null;
 
 $post = get_sql_post($link, $post_id);
@@ -32,8 +37,6 @@ $page_content = include_template('post.php', [
 ]);
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
-    'is_auth' => $is_auth,
-    'user_name' => $user_name,
     'title' => 'readme: публикация',
 ]);
 

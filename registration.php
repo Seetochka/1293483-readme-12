@@ -5,6 +5,11 @@ require_once 'functions.php';
 require_once 'sql-queries.php';
 require_once 'constants.php';
 
+if (isset($_SESSION['user'])) {
+    header("Location: /feed.php");
+    die();
+}
+
 $title_errors = [
     'email' => 'Электронная почта',
     'login' => 'Логин',
@@ -50,8 +55,6 @@ $page_content = include_template('registration.php', [
 ]);
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
-    'is_auth' => $is_auth,
-    'user_name' => $user_name,
     'title' => 'readme: регистрация',
 ]);
 

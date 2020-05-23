@@ -59,23 +59,23 @@
         </section>
         <section class="authorization">
             <h2 class="visually-hidden">Авторизация</h2>
-            <form class="authorization__form form" action="#" method="post">
-                <div class="authorization__input-wrapper form__input-wrapper">
-                    <input class="authorization__input authorization__input--login form__input" type="text" name="login" placeholder="Логин">
+            <form class="authorization__form form" action="/index.php" method="post">
+                <div class="authorization__input-wrapper form__input-wrapper <?= $errors['email'] ? 'form__input-section--error' :''; ?>">
+                    <input class="authorization__input authorization__input--login form__input" type="text" name="email" placeholder="Электронная почта" value="<?= htmlspecialchars($form['email']); ?>">
                     <svg class="form__input-icon" width="19" height="18">
                         <use xlink:href="#icon-input-user"></use>
                     </svg>
-                    <label class="visually-hidden">Логин</label>
-                    <span class="form__error-label form__error-label--login">Неверный логин</span>
                 </div>
-                <div class="authorization__input-wrapper form__input-wrapper">
+                <label class="visually-hidden <?= $errors['email'] ? 'form__input-section--error' :''; ?>">Электронная почта</label>
+                <span class="form__error-label form__error-label--login" style="margin-bottom: 10px;"><?= $errors['email']; ?></span>
+                <div class="authorization__input-wrapper form__input-wrapper <?= $errors['password'] ? 'form__input-section--error' :''; ?>">
                     <input class="authorization__input authorization__input--password form__input" type="password" name="password" placeholder="Пароль">
                     <svg class="form__input-icon" width="16" height="20">
                         <use xlink:href="#icon-input-password"></use>
                     </svg>
-                    <label class="visually-hidden">Пароль</label>
-                    <span class="form__error-label">Пароли не совпадают</span>
                 </div>
+                <label class="visually-hidden <?= $errors['password'] ? 'form__input-section--error' :''; ?>">Пароль</label>
+                <span class="form__error-label"><?= $errors['password']; ?></span>
                 <a class="authorization__recovery" href="#">Восстановить пароль</a>
                 <button class="authorization__submit button button--main" type="submit">Войти</button>
             </form>

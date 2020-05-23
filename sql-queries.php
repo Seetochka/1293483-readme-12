@@ -31,6 +31,10 @@ function get_sql_posts_filters($connection, array $params, string $sort_field = 
                 INNER JOIN users u ON p.user_id = u.id
                 INNER JOIN content_types ct ON p.content_type_id = ct.id";
 
+    if (array_key_exists('follower_id = ?', $params)) {
+        $sql_posts .= " INNER JOIN subscriptions s ON p.user_id = s.author_id";
+    }
+
     if (count($params) > 0) {
         $sql_posts .= " WHERE " . implode(' AND ', array_keys($params));
     }
@@ -112,25 +116,30 @@ function get_sql_user($connection, int $user_id): array {
 function create_sql_post($connection, string $content_type, array $post): ?int {
     $hashtags = array_filter(explode(' ', $post['hashtag_name']));
     unset($post['hashtag_name']);
+    $post['user_id'] = $_SESSION['user']['id'];
 
-    $sql_post = 'INSERT INTO posts (dt_add, title, user_id, content_type_id';
+    $sql_post = 'INSERT INTO posts (dt_add, title, content_type_id';
 
     switch ($content_type) {
         case 'photo':
-            $sql_post .= ', photo) VALUES (NOW(), ?, 2, ?, ?)';
+            $sql_post .= ', photo';
             break;
         case 'video':
-            $sql_post .= ', video) VALUES (NOW(), ?, 1, ?, ?)';
+            $sql_post .= ', video';
             break;
         case 'text':
-            $sql_post .= ', content) VALUES (NOW(), ?, 3, ?, ?)';
+            $sql_post .= ', content';
             break;
         case 'quote':
-            $sql_post .= ', content, quote_author) VALUES (NOW(), ?, 2, ?, ?, ?)';
+            $sql_post .= ', content, quote_author, user_id) VALUES (NOW(), ?, ?, ?, ?, ?)';
             break;
         case 'link':
-            $sql_post .= ', link) VALUES (NOW(), ?, 3, ?, ?)';
+            $sql_post .= ', link';
             break;
+    }
+
+    if ($content_type !== 'quote') {
+        $sql_post .= ', user_id) VALUES (NOW(), ?, ?, ?, ?)';
     }
 
     $stmt_post = db_get_prepare_stmt($connection, $sql_post, $post);
@@ -203,7 +212,7 @@ function create_sql_post_hashtag($connection, int $post_id, array $hashtags): bo
  * @return array | null Массив с id пользователя, если его электронная почта есть в базе данных, иначе null
  */
 function search_sql_email($connection, string $user_email): ?array {
-    $sql_user = 'SELECT u.id FROM users u WHERE u.email = ?';
+    $sql_user = 'SELECT u.id, u.dt_add, u.email, u.login, u.password, u.avatar FROM users u WHERE u.email = ?';
 
     return fetch_assoc($connection, $sql_user, [$user_email]);
 }

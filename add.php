@@ -5,6 +5,11 @@ require_once 'functions.php';
 require_once 'sql-queries.php';
 require_once 'constants.php';
 
+if (!isset($_SESSION['user'])) {
+    header("Location: /");
+    die();
+}
+
 $form_title = ['фото', 'видео', 'текста', 'цитаты', 'ссылки'];
 
 $content_types = get_sql_content_types($link);
@@ -61,8 +66,6 @@ $page_content = include_template('add-post.php', [
 
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
-    'is_auth' => $is_auth,
-    'user_name' => $user_name,
     'title' => 'readme: добавление публикации',
 ]);
 

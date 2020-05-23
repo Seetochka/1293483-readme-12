@@ -80,10 +80,10 @@
 
                             <?php case 'link': ?>
                                 <div class="post-link__wrapper">
-                                    <a class="post-link__external" href="http://<?= htmlspecialchars($post['link']); ?>" title="Перейти по ссылке">
+                                    <a class="post-link__external" href="<?= append_protocol(htmlspecialchars($post['link'])); ?>" title="Перейти по ссылке">
                                         <div class="post-link__info-wrapper">
                                             <div class="post-link__icon-wrapper">
-                                                <img src="https://www.google.com/s2/favicons?domain=vitadental.ru" alt="Иконка">
+                                                <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($post['link']); ?>" alt="Иконка">
                                             </div>
                                             <div class="post-link__info">
                                                 <h3><?= htmlspecialchars($post['title']); ?></h3>
@@ -131,7 +131,7 @@
                             <a class="post__author-link" href="#" title="Автор">
                                 <div class="post__avatar-wrapper">
                                     <!--укажите путь к файлу аватара-->
-                                    <img class="post__author-avatar" src="<?= $post['avatar']; ?>" alt="Аватар пользователя">
+                                    <img class="post__author-avatar" src="<?= $post['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя">
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><?= htmlspecialchars($post['login']); ?></b>
