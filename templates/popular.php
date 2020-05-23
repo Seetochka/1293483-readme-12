@@ -80,7 +80,7 @@
 
                             <?php case 'link': ?>
                                 <div class="post-link__wrapper">
-                                    <a class="post-link__external" href="<?= check_protocol(htmlspecialchars($post['link'])); ?>" title="Перейти по ссылке">
+                                    <a class="post-link__external" href="<?= append_protocol(htmlspecialchars($post['link'])); ?>" title="Перейти по ссылке">
                                         <div class="post-link__info-wrapper">
                                             <div class="post-link__icon-wrapper">
                                                 <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($post['link']); ?>" alt="Иконка">

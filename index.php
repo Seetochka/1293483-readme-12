@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] =='POST') {
 
     if (!count($errors)) {
         header('Location: feed.php');
+        die();
     }
 }
 

@@ -224,7 +224,7 @@ function is_correct_length(string $value, int $min = 0, int $max = INF): bool {
  * @return bool true при корректной ссылке, иначе false
  */
 function is_correct_link(string $value): bool {
-    return boolval(filter_var(check_protocol($value), FILTER_VALIDATE_URL)) && @get_headers(check_protocol($value)) !== false;
+    return boolval(filter_var(append_protocol($value), FILTER_VALIDATE_URL)) && @get_headers(append_protocol($value)) !== false;
 }
 
 /**
@@ -234,7 +234,7 @@ function is_correct_link(string $value): bool {
  */
 function is_link_youtube(string $value): bool {
     $youtube_hosts = ['www.youtube.com', 'youtube.com', 'youtu.be'];
-    $value = check_protocol($value);
+    $value = append_protocol($value);
 
     if (in_array(parse_url($value, PHP_URL_HOST), $youtube_hosts)) {
         return boolval(extract_youtube_id($value));
@@ -249,7 +249,7 @@ function is_link_youtube(string $value): bool {
  * @return bool true если возможно загрузить файл по ссылке, иначе false
  */
 function is_available_resource(string $value): bool {
-    $headers = get_headers(check_protocol($value), 1);
+    $headers = get_headers(append_protocol($value), 1);
 
     return boolval(strpos($headers[0], '200'));
 }
@@ -445,7 +445,7 @@ function validate_link_photo(string $value): ?string {
     $headers = [];
 
     if (is_correct_link($value)) {
-        $headers = get_headers(check_protocol($value), 1);
+        $headers = get_headers(append_protocol($value), 1);
     }
 
     switch (false) {
@@ -623,7 +623,7 @@ function upload_file($file): string {
     ];
 
     if (is_string($file)) {
-        $file = check_protocol($file);
+        $file = append_protocol($file);
         $headers = get_headers($file, 1);
         $path = $file_extension[$headers['Content-Type']];
         $filename = 'uploads/' . uniqid() . '.' . $path;
@@ -702,6 +702,6 @@ function prepare_post_rules(string $content_type): array {
  * @param string $value Ссылка
  * @return string Ссылка с протоколом
  */
-function check_protocol(string $value): string {
+function append_protocol(string $value): string {
     return parse_url($value, PHP_URL_SCHEME) ? $value : "http://{$value}";
 }
