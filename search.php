@@ -17,7 +17,7 @@ if (!$search_query) {
     die();
 }
 
-$posts = search_sql_posts($link, $search_query);
+$posts = get_sql_posts_filters($link, ['q' => $search_query], 'dt_add', 'DESC', 100);
 
 $page_content = include_template('search.php', [
     'search_query' => $search_query,

@@ -27,7 +27,7 @@ if($active_content_type) {
 
 $current_page = intval($_GET['page'] ?? 1);
 $items_count = get_sql_posts_count($link, $query_params);
-$page_items = $items_count <= 9 ? 9 : 6;
+$page_items = $items_count <= PAGE_ITEMS_POOR_DB ? PAGE_ITEMS_POOR_DB : PAGE_ITEMS_RICH_DB;
 $pages_count = intval(ceil($items_count / $page_items));
 $offset = ($current_page - 1) * $page_items;
 

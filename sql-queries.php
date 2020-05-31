@@ -25,7 +25,7 @@ function get_sql_posts_filters($connection, array $params, string $sort_field = 
     $sorting_order = mb_strtolower($sorting_order) === 'asc' ? 'ASC' : 'DESC';
     $sort_field = in_array($sort_field, ['show_count', 'dt_add', 'likes_count']) ? $sort_field : 'show_count';
 
-    $sql_posts = "SELECT p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, u.login, u.avatar, ct.class_name,
+    $sql_posts = "SELECT DISTINCT p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, u.login, u.avatar, ct.class_name,
                 (SELECT COUNT(*) FROM likes WHERE p.id = likes.post_id) AS likes_count,
                 (SELECT COUNT(*) FROM comments WHERE p.id = comments.post_id) AS comments_count
                 FROM posts p
@@ -36,8 +36,26 @@ function get_sql_posts_filters($connection, array $params, string $sort_field = 
         $sql_posts .= " INNER JOIN subscriptions s ON p.user_id = s.author_id";
     }
 
-    if (count($params) > 0) {
+    if (count($params) > 0 && !array_key_exists('q', $params)) {
         $sql_posts .= " WHERE " . implode(' AND ', array_keys($params));
+    }
+
+    if (array_key_exists('q', $params)) {
+        if (substr($params['q'], 0, 1) !== '#') {
+            $sql_posts .= ' WHERE MATCH(p.title, p.content) AGAINST(?)';
+
+            return fetch_all($connection, $sql_posts, $params);
+        }
+
+        $params = array_filter(explode(' ', $params['q']));//разбивает поисковый запрос на отдельные слова и делает из них массив
+        $params = array_map(function($value) {if (substr($value, 0, 1) === '#') {return substr($value, 1);} else {return $value;}}, $params);//удаляет из начала строки каждого элемента массива #, если он есть
+        $sql_posts .= ' INNER JOIN post_hashtag ph ON p.id = ph.post_id
+            INNER JOIN hashtags h ON ph.hashtag_id = h.id
+            WHERE hashtag_name = ?';
+
+        for ($i = 1; $i < count($params); $i++) {
+            $sql_posts .= ' OR hashtag_name = ?';
+        }
     }
 
     $sql_posts .= " ORDER BY $sort_field $sorting_order LIMIT $limit OFFSET $offset";
@@ -250,43 +268,6 @@ function create_sql_user($connection, array $user): bool {
     $stmt = db_get_prepare_stmt($connection, $sql_user, $user);
 
     return mysqli_stmt_execute($stmt);
-}
-
-/**
- * Ищет в базе данных посты по поисковому запросу
- * @param mysqli $connection Ресурс соединения
- * @param string $search_query Поисковый запрос
- * @return array | null Массив с постами, иначе null
- */
-function search_sql_posts($connection, string $search_query): ?array {
-    $posts = null;
-    $sql_posts = 'SELECT DISTINCT  p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, u.login, u.avatar, ct.class_name,
-            (SELECT COUNT(*) FROM likes WHERE p.id = likes.post_id) AS likes_count,
-            (SELECT COUNT(*) FROM comments WHERE p.id = comments.post_id) AS comments_count
-            FROM posts p
-            INNER JOIN users u ON p.user_id = u.id
-            INNER JOIN content_types ct ON p.content_type_id = ct.id';
-
-    if (substr($search_query, 0, 1) === '#') {//если в начале строки указана #, то все слова в этом запросе будут считаться тегами
-        $hashtags = array_filter(explode(' ', $search_query));
-        $hashtags = array_map(function($value) {if (substr($value, 0, 1) === '#') {return substr($value, 1);} else {return $value;}}, $hashtags);
-        $sql_posts .= ' INNER JOIN post_hashtag ph ON p.id = ph.post_id
-            INNER JOIN hashtags h ON ph.hashtag_id = h.id
-            WHERE hashtag_name = ?';
-
-        for ($i = 1; $i < count($hashtags); $i++) {
-            $sql_posts .= ' OR hashtag_name = ?';
-        }
-
-        $sql_posts .= ' ORDER BY dt_add DESC';
-        $posts = fetch_all($connection, $sql_posts, $hashtags);
-    } else {
-        $sql_posts .= ' WHERE MATCH(p.title, p.content) AGAINST(?)';
-
-        $posts = fetch_all($connection, $sql_posts, [$search_query]);
-    }
-
-    return $posts;
 }
 
 /**
