@@ -75,7 +75,7 @@
                                         <div class="post-text__more-link-wrapper">
                                             <a class="post-text__more-link" href="#">Читать далее</a>
                                         </div>
-                                        <?php endif; ?>
+                                    <?php endif; ?>
                                     <?php break; ?>
                                 <?php endswitch; ?>
                             </div>
