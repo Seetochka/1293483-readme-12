@@ -71,7 +71,7 @@
                     </ul>
                     <ul class="header__user-nav">
                         <li class="header__profile">
-                            <a class="header__profile-link" href="#">
+                            <a class="header__profile-link" href="/profile.php?id=<?= $_SESSION['user']['id']; ?>">
                                 <div class="header__avatar-wrapper">
                                     <img class="header__profile-avatar" src="<?= $_SESSION['user']['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар профиля">
                                 </div>
@@ -88,7 +88,7 @@
                                 <div class="header__profile-tooltip">
                                     <ul class="header__profile-nav">
                                         <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="#">
+                                            <a class="header__profile-nav-link" href="/profile.php?id=<?= $_SESSION['user']['id']; ?>">
                                                 <span class="header__profile-nav-text">
                                                     Мой профиль
                                                 </span>
@@ -103,7 +103,7 @@
                                             </a>
                                         </li>
                                         <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="logout.php">
+                                            <a class="header__profile-nav-link" href="/logout.php">
                                                 <span class="header__profile-nav-text">
                                                     Выход
                                                 </span>
@@ -114,7 +114,7 @@
                             </div>
                         </li>
                         <li>
-                            <a class="header__post-button button button--transparent" href="add.php">Пост</a>
+                            <a class="header__post-button button button--transparent" href="/add.php">Пост</a>
                         </li>
                     </ul>
                 </nav>
@@ -158,13 +158,13 @@
             <div class="footer__my-info">
                 <ul class="footer__my-pages">
                     <li class="footer__my-page footer__my-page--feed">
-                        <a class="footer__page-link" href="feed.html">Моя лента</a>
+                        <a class="footer__page-link" href="/feed.php">Моя лента</a>
                     </li>
                     <li class="footer__my-page footer__my-page--popular">
-                        <a class="footer__page-link" href="popular.html">Популярный контент</a>
+                        <a class="footer__page-link" href="/popular.php">Популярный контент</a>
                     </li>
                     <li class="footer__my-page footer__my-page--messages">
-                        <a class="footer__page-link" href="messages.html">Личные сообщения</a>
+                        <a class="footer__page-link" href="/messages.php">Личные сообщения</a>
                     </li>
                 </ul>
                 <div class="footer__copyright">

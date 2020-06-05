@@ -10,6 +10,7 @@ if (!isset($_SESSION['user'])) {
     die();
 }
 
+$user_data = $_SESSION['user'];
 $post_id = isset($_GET['id']) && ctype_digit($_GET['id']) ? $_GET['id'] : null;
 
 $post = get_sql_post($link, $post_id);
@@ -20,11 +21,30 @@ if(!$post) {
     die($error_msg);
 }
 
+$post['is_liked'] = is_liked_post($link, $post['id'], $user_data['id']);
+$post['repost_count'] = get_sql_repost_count($link, $post['id']);
 $comments = get_sql_comments($link, $post_id);
 $comments_count = get_sql_comments_count($link, $post_id);
-$user = get_sql_user($link, $post['user_id']);
+$author = get_sql_user($link, $post['user_id']);
+$author['is_follower'] = is_follower($link, $author['id'], $user_data['id']);
 
-$post_content = include_template("post-{$post['class_name']}.php", [
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $new_comment = remove_space($_POST);
+    $rules = ['content' => function($value) {return validate_comment($value); },];
+
+    $errors = array_filter(validate($new_comment, $rules));
+
+    if (!count($errors)) {
+        $result = create_sql_comment($link, $new_comment['content'], $post_id, $user_data['id']);
+
+        if ($result) {
+            header('Location: post.php?id='. $post_id);
+            die();
+        }
+    }
+}
+
+$post_content = include_template("post/post-{$post['class_name']}.php", [
     'post' => $post,
 ]);
 
@@ -32,8 +52,11 @@ $page_content = include_template('post.php', [
     'post_content' => $post_content,
     'post' => $post,
     'comments' => $comments,
-    'user' => $user,
+    'author' => $author,
     'comments_count' => $comments_count,
+    'errors' => $errors,
+    'new_comment' => $new_comment,
+    'user_data' => $user_data,
 ]);
 $layout_content = include_template('layout.php', [
     'content' => $page_content,

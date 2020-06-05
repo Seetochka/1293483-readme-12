@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-$add_post_content = include_template("add-post-{$content_types[$index]['class_name']}.php", [
+$add_post_content = include_template("add-post/add-post-{$content_types[$index]['class_name']}.php", [
     'index' => $index,
     'content_types' => $content_types,
     'post' => $post_to_validate,

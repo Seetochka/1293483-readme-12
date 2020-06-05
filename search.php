@@ -19,6 +19,12 @@ if (!$search_query) {
 
 $posts = get_sql_posts_filters($link, ['q' => $search_query], 'dt_add', 'DESC', 100);
 
+foreach ($posts as $key => $post) {//удаление репостов из поискового запроса
+    if ($post['author_id']) {
+        unset($posts[$key]);
+    }
+}
+
 $page_content = include_template('search.php', [
     'search_query' => $search_query,
     'posts' => $posts,
