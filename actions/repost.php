@@ -35,10 +35,9 @@ $content_type = $post['class_name'];
 
 switch ($content_type) {
     case 'photo':
-        $repost['photo'] = $post['photo'];
-        break;
     case 'video':
-        $repost['video'] = $post['video'];
+    case 'link':
+        $repost[$content_type] = $post[$content_type];
         break;
     case 'text':
         $repost['content'] = $post['content'];
@@ -46,9 +45,6 @@ switch ($content_type) {
     case 'quote':
         $repost['content'] = $post['content'];
         $repost['quote_author'] = $post['quote_author'];
-        break;
-    case 'link':
-        $repost['link'] = $post['link'];
         break;
 }
 

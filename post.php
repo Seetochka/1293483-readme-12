@@ -21,7 +21,6 @@ if(!$post) {
     die($error_msg);
 }
 
-$post['is_liked'] = is_liked_post($link, $post['id'], $user_data['id']);
 $post['repost_count'] = get_sql_repost_count($link, $post['id']);
 $comments = get_sql_comments($link, $post_id);
 $comments_count = get_sql_comments_count($link, $post_id);
@@ -41,6 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header('Location: post.php?id='. $post_id);
             die();
         }
+
+        mysqli_error($link);
     }
 }
 

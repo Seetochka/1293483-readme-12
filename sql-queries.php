@@ -24,10 +24,12 @@ function get_sql_content_types($connection): array {
 function get_sql_posts_filters($connection, array $params, string $sort_field = 'show_count', string $sorting_order = 'desc', int $limit = 6, int $offset = 0): array {
     $sorting_order = mb_strtolower($sorting_order) === 'asc' ? 'ASC' : 'DESC';
     $sort_field = in_array($sort_field, ['show_count', 'dt_add', 'likes_count']) ? $sort_field : 'show_count';
+    $user_data_id = $_SESSION['user']['id'];
 
     $sql_posts = "SELECT DISTINCT p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, u.login, u.avatar, ct.class_name, p.user_id, p.author_id, p. original_id,
-                (SELECT COUNT(*) FROM likes WHERE p.id = likes.post_id) AS likes_count,
-                (SELECT COUNT(*) FROM comments WHERE p.id = comments.post_id) AS comments_count
+                (SELECT COUNT(post_id) FROM likes WHERE p.id = likes.post_id) AS likes_count,
+                (SELECT COUNT(id) FROM comments WHERE p.id = comments.post_id) AS comments_count,
+                (SELECT user_id FROM likes WHERE p.id = likes.post_id AND likes.user_id = $user_data_id) AS is_liked
                 FROM posts p
                 INNER JOIN users u ON p.user_id = u.id
                 INNER JOIN content_types ct ON p.content_type_id = ct.id";
@@ -70,9 +72,11 @@ function get_sql_posts_filters($connection, array $params, string $sort_field = 
  * @return array | null Массив с данными поста или null, если такого поста нет
  */
 function get_sql_post($connection, int $post_id): ?array {
+    $user_data_id = $_SESSION['user']['id'];
     $sql_post = "SELECT p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, p.show_count, ct.class_name, p.content_type_id, p.user_id, p.author_id, p. original_id,
-                (SELECT COUNT(*) FROM likes WHERE p.id = likes.post_id) AS likes_count,
-                (SELECT COUNT(*) FROM comments WHERE p.id = comments.post_id) AS comments_count
+                (SELECT COUNT(post_id) FROM likes WHERE p.id = likes.post_id) AS likes_count,
+                (SELECT COUNT(id) FROM comments WHERE p.id = comments.post_id) AS comments_count,
+                (SELECT user_id FROM likes WHERE p.id = likes.post_id AND likes.user_id = $user_data_id) AS is_liked
                 FROM posts p
                 INNER JOIN content_types ct ON p.content_type_id = ct.id 
                 WHERE p.id = ?";
@@ -117,8 +121,8 @@ function get_sql_comments_count($connection, int $post_id): int {
  */
 function get_sql_user($connection, int $user_id): array {
     $sql_user = "SELECT u.id, u.dt_add, u.login, u.avatar,
-                (SELECT COUNT(*) FROM subscriptions WHERE u.id = subscriptions.author_id) AS follower_count,
-                (SELECT COUNT(*) FROM posts WHERE u.id = posts.user_id) AS posts_count
+                (SELECT COUNT(follower_id) FROM subscriptions WHERE u.id = subscriptions.author_id) AS follower_count,
+                (SELECT COUNT(id) FROM posts WHERE u.id = posts.user_id) AS posts_count
                 FROM users u
                 WHERE u.id = ?";
 
@@ -324,7 +328,7 @@ function get_sql_posts_likes($connection, int $user_id): array {
                     INNER JOIN likes l ON p.id = l.post_id
                     INNER JOIN users u ON l.user_id = u.id
                     INNER JOIN content_types ct ON p.content_type_id = ct.id
-                    WHERE (SELECT COUNT(*) AS likes_count FROM likes) > 0 AND p.user_id = ?
+                    WHERE (SELECT COUNT(post_id) AS likes_count FROM likes) > 0 AND p.user_id = ?
                     ORDER BY dt_add DESC';
 
     return fetch_all($connection, $sql_posts_likes, [$user_id]);
@@ -338,8 +342,8 @@ function get_sql_posts_likes($connection, int $user_id): array {
  */
 function get_sql_authors($connection, int $user_id): array {
     $sql_authors = 'SELECT u.id, u.dt_add, u.login, u.avatar,
-                    (SELECT COUNT(*) FROM subscriptions WHERE u.id = subscriptions.author_id) AS follower_count,
-                    (SELECT COUNT(*) FROM posts WHERE u.id = posts.user_id) AS posts_count 
+                    (SELECT COUNT(follower_id) FROM subscriptions WHERE u.id = subscriptions.author_id) AS follower_count,
+                    (SELECT COUNT(id) FROM posts WHERE u.id = posts.user_id) AS posts_count 
                     FROM users u
                     INNER JOIN subscriptions s ON u.id = s.author_id
                     WHERE s.follower_id = ?';
@@ -378,7 +382,7 @@ function create_like($connection, int $post_id, int $user_id): bool {
  * @return bool true - если лайк есть, false - если лайка нет
  */
 function is_liked_post($connection, int $post_id, int $user_id): bool {
-    $sql_like_post = 'SELECT * FROM likes WHERE user_id = ? AND post_id = ?';
+    $sql_like_post = 'SELECT dt_add, user_id, post_id FROM likes WHERE user_id = ? AND post_id = ?';
 
     if (fetch_all($connection, $sql_like_post, [$user_id, $post_id])) {
         return true;
@@ -422,7 +426,7 @@ function create_subscription($connection, int $author_id, int $follower_id): boo
  * @return bool true - если подписан, false - если нет
  */
 function is_follower($connection, int $author_id, int $follower_id): bool {
-    $sql_subscription = 'SELECT * FROM subscriptions WHERE follower_id = ? AND author_id = ?';
+    $sql_subscription = 'SELECT follower_id, author_id FROM subscriptions WHERE follower_id = ? AND author_id = ?';
 
     if (fetch_all($connection, $sql_subscription, [$follower_id, $author_id])) {
         return true;
@@ -451,9 +455,9 @@ function get_sql_repost_count($connection, int $post_id): int {
  * @return bool true - если делал репост, false - если нет
  */
 function is_reposted($connection, int $post_id, int $user_id): bool {
-    $sql = 'SELECT p.id FROM posts p WHERE p.original_id = ? AND p.user_id = ?';
+    $sql = 'SELECT COUNT(p.id) AS count FROM posts p WHERE p.original_id = ? AND p.user_id = ?';
 
-    if (fetch_all($connection, $sql, [$post_id, $user_id])) {
+    if (fetch_assoc($connection, $sql, [$post_id, $user_id])['count'] > 0) {
         return true;
     }
 

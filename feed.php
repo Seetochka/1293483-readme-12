@@ -21,7 +21,6 @@ if($active_content_type) {
 $posts = get_sql_posts_filters($link, $query_params, 'dt_add', 'desc', 100);
 
 foreach ($posts as $key => $post) {
-    $posts[$key]['is_liked'] = is_liked_post($link, $post['id'], $user_data['id']);
     $posts[$key]['repost_count'] = get_sql_repost_count($link, $post['id']);
 
     if ($posts[$key]['author_id']) {

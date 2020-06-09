@@ -26,7 +26,6 @@ switch ($query_parameter) {
 
         foreach ($posts as $key => $post) {
             $posts[$key]['hashtags'] = get_sql_hashtags($link, $post['id']);//получаем хештеги поста
-            $posts[$key]['is_liked'] = is_liked_post($link, $post['id'], $user_data['id']);//есть ли лайк пользователя на данном посте
             $posts[$key]['repost_count'] = get_sql_repost_count($link, $post['id']);//получаем число репостов
 
             if (in_array($post['id'], $showed_comments_post_ids)) {//получаем комментарии поста, если в поисковом запросе есть id этого поста
@@ -44,7 +43,7 @@ switch ($query_parameter) {
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $new_comment = remove_space($_POST);
-            $rules = ['content' => function($value) {return validate_field_completion($value); },];
+            $rules = ['content' => function($value) {return validate_comment($value); },];
 
             $errors = array_filter(validate($new_comment, $rules));
 
@@ -55,6 +54,8 @@ switch ($query_parameter) {
                     header('Location: profile.php?id='. $profile_id . '&comments=' . filter_input(INPUT_GET, 'comments'));
                     die();
                 }
+
+                mysqli_error($link);
             }
         }
 

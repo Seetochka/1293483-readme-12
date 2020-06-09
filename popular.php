@@ -34,10 +34,6 @@ $offset = ($current_page - 1) * $page_items;
 
 $posts = get_sql_posts_filters($link, $query_params, $sorting_field, $sorting_order, $page_items, $offset);
 
-foreach ($posts as $key => $post) {
-    $posts[$key]['is_liked'] = is_liked_post($link, $post['id'], $user_data['id']);
-}
-
 $content_types = get_sql_content_types($link);
 
 $page_content = include_template('popular.php', [

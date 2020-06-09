@@ -44,7 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $errors = array_filter($errors);
 
     if (!count($errors)) {
-        create_sql_user($link, $user) ? header('Location: index.php') : mysqli_error($link);
+        if (create_sql_user($link, $user)) {
+            header('Location: index.php');
+            die();
+        }
+
+        mysqli_error($link);
     }
 }
 
