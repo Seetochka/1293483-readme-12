@@ -24,7 +24,13 @@ function get_sql_content_types($connection): array {
 function get_sql_posts_filters($connection, array $params, string $sort_field = 'show_count', string $sorting_order = 'desc', int $limit = 6, int $offset = 0): array {
     $sorting_order = mb_strtolower($sorting_order) === 'asc' ? 'ASC' : 'DESC';
     $sort_field = in_array($sort_field, ['show_count', 'dt_add', 'likes_count']) ? $sort_field : 'show_count';
-    $user_data_id = $_SESSION['user']['id'];
+
+    if (array_key_exists('user_data_id', $params)) {
+        $user_data_id = $params['user_data_id'];
+        unset($params['user_data_id']);
+    } else {
+        $user_data_id = $params['follower_id = ?'];//для страницы feed user_data_id передается как follower_id
+    }
 
     $sql_posts = "SELECT DISTINCT p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, u.login, u.avatar, ct.class_name, p.user_id, p.author_id, p. original_id,
                 (SELECT COUNT(post_id) FROM likes WHERE p.id = likes.post_id) AS likes_count,

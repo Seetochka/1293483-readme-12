@@ -22,7 +22,7 @@ $profile_data['is_follower'] = is_follower($link, $profile_id, $user_data['id'])
 
 switch ($query_parameter) {
     case 'posts':
-        $posts = get_sql_posts_filters($link, ['user_id = ?' => $profile_id], 'dt_add', 'DESC', 100);
+        $posts = get_sql_posts_filters($link, ['user_id = ?' => $profile_id, 'user_data_id' => $user_data['id']], 'dt_add', 'DESC', 100);
 
         foreach ($posts as $key => $post) {
             $posts[$key]['hashtags'] = get_sql_hashtags($link, $post['id']);//получаем хештеги поста
