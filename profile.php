@@ -36,7 +36,7 @@ switch ($query_parameter) {
                 $author = get_sql_user($link, $post['author_id']);
                 $posts[$key]['author_login'] = $author['login'];
                 $posts[$key]['author_avatar'] = $author['avatar'];
-                $original_post = get_sql_post($link, $post['original_id']);
+                $original_post = get_sql_post($link, $post['original_id'], $user_data['id']);
                 $posts[$key]['original_post_dt_add'] = $original_post['dt_add'];
             }
         }

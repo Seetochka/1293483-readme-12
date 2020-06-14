@@ -75,10 +75,10 @@ function get_sql_posts_filters($connection, array $params, string $sort_field = 
  * Получает массив с данными поста по его id
  * @param mysqli $connection Ресурс соединения
  * @param int $post_id id поста
+ * @param int $user_data_id id пользователя
  * @return array | null Массив с данными поста или null, если такого поста нет
  */
-function get_sql_post($connection, int $post_id): ?array {
-    $user_data_id = $_SESSION['user']['id'];
+function get_sql_post($connection, int $post_id, int $user_data_id): ?array {
     $sql_post = "SELECT p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, p.show_count, ct.class_name, p.content_type_id, p.user_id, p.author_id, p. original_id,
                 (SELECT COUNT(post_id) FROM likes WHERE p.id = likes.post_id) AS likes_count,
                 (SELECT COUNT(id) FROM comments WHERE p.id = comments.post_id) AS comments_count,
@@ -365,7 +365,7 @@ function get_sql_authors($connection, int $user_id): array {
  * @return bool true при успешном создании или удалении лайка, false в случае неудачи
  */
 function create_like($connection, int $post_id, int $user_id): bool {
-    if (!get_sql_post($connection, $post_id)) {
+    if (!get_sql_post($connection, $post_id, $user_id)) {
         return false;
     }
 

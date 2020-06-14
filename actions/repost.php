@@ -6,7 +6,7 @@ require_once '../sql-queries.php';
 
 $user_data = $_SESSION['user'];
 $post_id = filter_input(INPUT_GET, 'id') ?? null;
-$post = get_sql_post($link, $post_id);
+$post = get_sql_post($link, $post_id, $user_data['id']);
 
 if (empty($post)) {
     $path = $_SERVER['HTTP_REFERER'];

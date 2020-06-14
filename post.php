@@ -13,7 +13,7 @@ if (!isset($_SESSION['user'])) {
 $user_data = $_SESSION['user'];
 $post_id = isset($_GET['id']) && ctype_digit($_GET['id']) ? $_GET['id'] : null;
 
-$post = get_sql_post($link, $post_id);
+$post = get_sql_post($link, $post_id, $user_data['id']);
 
 if(!$post) {
     header("HTTP/1.0 404 Not Found");
