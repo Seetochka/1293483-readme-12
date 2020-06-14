@@ -592,6 +592,26 @@ function validate_avatar(array $value): ?string {
 }
 
 /**
+ * Валидация комментария
+ * @param string $value Содержимое комментария
+ * @return string | null Текст ошибки или null, если валидация пройдена
+ */
+function validate_comment(string $value): ?string {
+    $error_message = null;
+
+    switch (false) {
+        case (is_filled($value)):
+            $error_message = 'Это поле должно быть заполнено';
+            break;
+        case (is_correct_length($value, COMMENT_MIN_SIZE, DATABASE_VARCHAR_MAX_SIZE)):
+            $error_message = 'Введите комментарий от ' . COMMENT_MIN_SIZE . ' до ' . DATABASE_VARCHAR_MAX_SIZE . ' символов';
+            break;
+    }
+
+    return $error_message;
+}
+
+/**
  * Валидация массива данных по массиву правил
  * @param array $data_array Массив данных для валидации
  * @param array $rules_array Массив правил валидации

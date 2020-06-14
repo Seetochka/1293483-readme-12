@@ -40,11 +40,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $post_to_create = remove_space(prepare_post_data($_POST, $content_types[$index]['class_name']));
         $post_id = create_sql_post($link, $content_types[$index]['class_name'], $post_to_create);
 
-        $post_id ? header("Location: post.php?id=" . $post_id) : mysqli_error($link);
+        if ($post_id) {
+            header("Location: post.php?id=" . $post_id);
+            die();
+        }
+
+        mysqli_error($link);
     }
 }
 
-$add_post_content = include_template("add-post-{$content_types[$index]['class_name']}.php", [
+$add_post_content = include_template("add-post/add-post-{$content_types[$index]['class_name']}.php", [
     'index' => $index,
     'content_types' => $content_types,
     'post' => $post_to_validate,

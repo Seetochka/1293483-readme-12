@@ -1,4 +1,3 @@
-<input type="hidden" name="content_type_id" value="<?= $content_types[$index]['id']; ?>">
 <div class="adding-post__textarea-wrapper form__textarea-wrapper">
     <label class="adding-post__label form__label" for="post-text">Текст поста <span class="form__input-required">*</span></label>
     <div class="form__input-section <?= $errors['content'] ? 'form__input-section--error' :''; ?>">

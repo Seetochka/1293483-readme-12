@@ -3,7 +3,7 @@
         <a class="post-link__external" href="<?= append_protocol(htmlspecialchars($post['link'])); ?>" title="Перейти по ссылке">
             <div class="post-link__info-wrapper">
                 <div class="post-link__icon-wrapper">
-                    <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($post['link']); ?>" alt="Иконка">
+                    <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($post['link']); ?>" alt="Иконка" width="120" height="120">
                 </div>
                 <div class="post-link__info">
                     <h3><?= htmlspecialchars($post['title']); ?></h3>

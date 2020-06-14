@@ -39,6 +39,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <input type="hidden" name="content_type_id" value="<?= $content_types[$index]['id']; ?>">
 
                                     <?= $add_post_content; ?>
 

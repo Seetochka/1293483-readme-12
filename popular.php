@@ -12,6 +12,7 @@ if (!isset($_SESSION['user'])) {
 
 date_default_timezone_set('Europe/Moscow');
 
+$user_data = $_SESSION['user'];
 $active_content_type = filter_input(INPUT_GET, 'content-type');
 
 $active_sorting_type = filter_input(INPUT_GET, 'sorting-type');
@@ -19,7 +20,7 @@ $sorting_field = get_sorting_field($active_sorting_type);
 
 $sorting_order = filter_input(INPUT_GET, 'sorting-order') ?? 'desc';
 
-$query_params = [];
+$query_params['author_id IS NULL = ?'] =  '1';//добавляю условие, чтобы на странице популярного не отображались репосты
 
 if($active_content_type) {
     $query_params['content_type_id = ?'] =  $active_content_type;
@@ -31,7 +32,9 @@ $page_items = $items_count <= PAGE_ITEMS_POOR_DB ? PAGE_ITEMS_POOR_DB : PAGE_ITE
 $pages_count = intval(ceil($items_count / $page_items));
 $offset = ($current_page - 1) * $page_items;
 
+$query_params['user_data_id'] =  $user_data['id'];
 $posts = get_sql_posts_filters($link, $query_params, $sorting_field, $sorting_order, $page_items, $offset);
+
 $content_types = get_sql_content_types($link);
 
 $page_content = include_template('popular.php', [

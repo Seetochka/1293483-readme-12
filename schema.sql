@@ -34,6 +34,9 @@ CREATE TABLE posts (
     FOREIGN KEY (user_id) REFERENCES users(id),
     content_type_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (content_type_id) REFERENCES content_types(id),
+    author_id INT UNSIGNED,
+    FOREIGN KEY (author_id) REFERENCES users(id),
+    original_id int,
 
     FULLTEXT (title, content)
 );
@@ -50,6 +53,7 @@ CREATE TABLE comments (
 );
 
 CREATE TABLE likes (
+    dt_add DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     user_id INT UNSIGNED NOT NULL,
     post_id INT UNSIGNED NOT NULL,
     PRIMARY KEY (user_id, post_id),

@@ -83,7 +83,7 @@
                                     <a class="post-link__external" href="<?= append_protocol(htmlspecialchars($post['link'])); ?>" title="Перейти по ссылке">
                                         <div class="post-link__info-wrapper">
                                             <div class="post-link__icon-wrapper">
-                                                <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($post['link']); ?>" alt="Иконка">
+                                                <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($post['link']); ?>" alt="Иконка" width="16" height="16">
                                             </div>
                                             <div class="post-link__info">
                                                 <h3><?= htmlspecialchars($post['title']); ?></h3>
@@ -128,10 +128,9 @@
                     </div>
                     <footer class="post__footer">
                         <div class="post__author">
-                            <a class="post__author-link" href="#" title="Автор">
+                            <a class="post__author-link" href="/profile.php?id=<?= $post['user_id'] ?>" title="Автор">
                                 <div class="post__avatar-wrapper">
-                                    <!--укажите путь к файлу аватара-->
-                                    <img class="post__author-avatar" src="<?= $post['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя">
+                                    <img class="post__author-avatar" src="<?= $post['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя" width="40" height="40">
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><?= htmlspecialchars($post['login']); ?></b>
@@ -141,17 +140,17 @@
                         </div>
                         <div class="post__indicators">
                             <div class="post__buttons">
-                                <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
-                                    <svg class="post__indicator-icon" width="20" height="17">
+                                <a class="post__indicator post__indicator--likes button" href="/actions/toggle-like.php?id=<?= $post['id']; ?>" title="Лайк">
+                                    <svg class="post__indicator-icon <?= $post['is_liked'] ? 'post__indicator-icon--like-active' : ''; ?>" width="20" height="17">
                                         <use xlink:href="#icon-heart"></use>
                                     </svg>
-                                    <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
+                                    <svg class="post__indicator-icon <?= !$post['is_liked'] ? 'post__indicator-icon--like-active' : ''; ?>" width="20" height="17">
                                         <use xlink:href="#icon-heart-active"></use>
                                     </svg>
                                     <span><?= $post['likes_count']; ?></span>
                                     <span class="visually-hidden">количество лайков</span>
                                 </a>
-                                <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
+                                <a class="post__indicator post__indicator--comments button" href="/post.php?id=<?= $post['id']; ?>" title="Комментарии">
                                     <svg class="post__indicator-icon" width="19" height="17">
                                         <use xlink:href="#icon-comment"></use>
                                     </svg>
