@@ -9,6 +9,8 @@ if (!isset($_SESSION['user'])) {
     die();
 }
 
+$user_data = $_SESSION['user'];
+$unread_messages_count = get_sql_unread_messages_count($link, $user_data['id']);
 $search_query = trim($_GET['q']) ?? '';
 
 if (!$search_query) {
@@ -17,7 +19,7 @@ if (!$search_query) {
     die();
 }
 
-$posts = get_sql_posts_filters($link, ['q' => $search_query], 'dt_add', 'DESC', 100);
+$posts = get_sql_posts_filters($link, ['q' => $search_query, 'user_data_id' => $user_data['id']], 'dt_add', 'DESC', 100);
 
 foreach ($posts as $key => $post) {//удаление репостов из поискового запроса
     if ($post['author_id']) {
@@ -32,6 +34,8 @@ $page_content = include_template('search.php', [
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
     'title' => 'readme: страница результатов поиска',
+    'unread_messages_count' => $unread_messages_count,
+    'search_query' => $search_query,
 ]);
 
 print ($layout_content);

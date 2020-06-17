@@ -11,7 +11,9 @@ if (!isset($_SESSION['user'])) {
 }
 
 $user_data = $_SESSION['user'];
+$unread_messages_count = get_sql_unread_messages_count($link, $user_data['id']);
 $post_id = isset($_GET['id']) && ctype_digit($_GET['id']) ? $_GET['id'] : null;
+$showed_comments_all = filter_input(INPUT_GET, 'comments') ?? null;
 
 $post = get_sql_post($link, $post_id, $user_data['id']);
 
@@ -21,9 +23,13 @@ if(!$post) {
     die($error_msg);
 }
 
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    increase_sql_show_count($link, $post_id);//счетчик не работает нормально в Google, прибавляет по 2 просмотра вместо 1 (в Firefox и Internet Explorer работает нормально)
+}
+
 $post['repost_count'] = get_sql_repost_count($link, $post['id']);
 $comments = get_sql_comments($link, $post_id);
-$comments_count = get_sql_comments_count($link, $post_id);
+$comments_count = $showed_comments_all === 'all' ? $post['comments_count'] : MAX_COMMENT_COUNT;
 $author = get_sql_user($link, $post['user_id']);
 $author['is_follower'] = is_follower($link, $author['id'], $user_data['id']);
 
@@ -62,6 +68,7 @@ $page_content = include_template('post.php', [
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
     'title' => 'readme: публикация',
+    'unread_messages_count' => $unread_messages_count,
 ]);
 
 print ($layout_content);

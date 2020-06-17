@@ -17,3 +17,4 @@ define('DATABASE_VARCHAR_MAX_SIZE', 128);
 define('PAGE_ITEMS_POOR_DB', 9);
 define('PAGE_ITEMS_RICH_DB', 6);
 define('COMMENT_MIN_SIZE', 4);
+define('HOURS_A_DAY', 24);

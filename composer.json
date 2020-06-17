@@ -1,0 +1,13 @@
+{
+    "name": "seetochka/readme",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Svetlana Lopareva",
+            "email": "seetochka95@gmail.com"
+        }
+    ],
+    "require": {
+        "swiftmailer/swiftmailer": "^6.2"
+    }
+}

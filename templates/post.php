@@ -20,7 +20,7 @@
                                 <span><?= $post['likes_count']; ?></span>
                                 <span class="visually-hidden">количество лайков</span>
                             </a>
-                            <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
+                            <a class="post__indicator post__indicator--comments button" title="Комментарии">
                                 <svg class="post__indicator-icon" width="19" height="17">
                                     <use xlink:href="#icon-comment"></use>
                                 </svg>
@@ -57,10 +57,10 @@
                         </form>
                         <div class="comments__list-wrapper">
                             <ul class="comments__list">
-                                <?php for ($i = 0, $comment_num = min(count($comments), MAX_COMMENT_COUNT); $i < $comment_num; $i++): ?>
+                                <?php for ($i = 0, $comment_num = min(count($comments), $comments_count); $i < $comment_num; $i++): ?>
                                     <li class="comments__item user">
                                         <div class="comments__avatar">
-                                            <a class="user__avatar-link" href="#">
+                                            <a class="user__avatar-link" href="/profile.php?id=<?= $comments[$i]['user_id']; ?>">
                                                 <img class="comments__picture" src="<?= $comments[$i]['avatar']; ?>" alt="Аватар пользователя">
                                             </a>
                                         </div>
@@ -78,10 +78,10 @@
                                     </li>
                                 <?php endfor; ?>
                             </ul>
-                            <?php if($comments_count > MAX_COMMENT_COUNT): ?>
-                                <a class="comments__more-link" href="#">
+                            <?php if($post['comments_count'] > MAX_COMMENT_COUNT && $post['comments_count'] !== $comments_count): ?>
+                                <a class="comments__more-link" href="<?= get_query_href(['comments' => 'all'], '/post.php') ?>">
                                     <span>Показать все комментарии</span>
-                                    <sup class="comments__amount"><?= $comments_count; ?></sup>
+                                    <sup class="comments__amount"><?= $post['comments_count']; ?></sup>
                                 </a>
                             <?php endif; ?>
                         </div>
@@ -90,12 +90,12 @@
                 <div class="post-details__user user">
                     <div class="post-details__user-info user__info">
                         <div class="post-details__avatar user__avatar">
-                            <a class="post-details__avatar-link user__avatar-link" href="#">
+                            <a class="post-details__avatar-link user__avatar-link" href="/profile.php?id=<?= $author['id']; ?>">
                                 <img class="post-details__picture user__picture" src="<?= $author['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя" width="60" height="60">
                             </a>
                         </div>
                         <div class="post-details__name-wrapper user__name-wrapper">
-                            <a class="post-details__name user__name" href="#">
+                            <a class="post-details__name user__name" href="/profile.php?id=<?= $author['id']; ?>">
                                 <span><?= $author['login']; ?></span>
                             </a>
                             <time class="post-details__time user__time" datetime="<?= $author['dt_add']; ?>"><?= format_time($author['dt_add']); ?>на сайте</time>
@@ -115,7 +115,7 @@
                         <?php if ($author['id'] !== $user_data['id']): ?>
                             <a class="user__button user__button--subscription button button--<?= !$author['is_follower'] ? 'main' : 'quartz'; ?>" href="/actions/toggle-subscription.php?author_id=<?= $author['id'] ?>"><?= !$author['is_follower'] ? 'Подписаться' : 'Отписаться'; ?></a>
                             <?php if ($author['is_follower']): ?>
-                                <a class="user__button user__button--writing button button--green" href="#">Сообщение</a>
+                                <a class="user__button user__button--writing button button--green" href="/messages.php?id=<?= $author['id']; ?>">Сообщение</a>
                             <?php endif; ?>
                         <?php endif; ?>
                     </div>
