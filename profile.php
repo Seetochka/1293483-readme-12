@@ -6,17 +6,19 @@ require_once 'sql-queries.php';
 require_once 'constants.php';
 
 $user_data = $_SESSION['user'];
+$unread_messages_count = get_sql_unread_messages_count($link, $user_data['id']);
 $profile_id = filter_input(INPUT_GET, 'id') ?? null;
 $profile_data = get_sql_user($link, $profile_id);
 
 if (empty($profile_data)) {
-    $path = $_SERVER['HTTP_REFERER'];
-    header("Location: $path");
-    die();
+    header("HTTP/1.0 404 Not Found");
+    $error_msg = 'Не удалось выполнить запрос: ' . mysqli_error($link);
+    die($error_msg);
 }
 
 $query_parameter = filter_input(INPUT_GET, 'query-parameter') ?? 'posts';
 $showed_comments_post_ids = array_filter(explode('+', filter_input(INPUT_GET, 'comments')));
+$showed_comments_all_post_ids = array_filter(explode('+', filter_input(INPUT_GET, 'comments-all')));
 $profile_data['login'] = implode('<br>', explode(' ', $profile_data['login']));
 $profile_data['is_follower'] = is_follower($link, $profile_id, $user_data['id']);
 
@@ -30,6 +32,7 @@ switch ($query_parameter) {
 
             if (in_array($post['id'], $showed_comments_post_ids)) {//получаем комментарии поста, если в поисковом запросе есть id этого поста
                 $posts[$key]['comments'] = get_sql_comments($link, $post['id']);
+                $posts[$key]['comments_count_in_page'] = in_array($post['id'], $showed_comments_all_post_ids) ? $post['comments_count'] : MAX_COMMENT_COUNT;
             }
 
             if ($post['author_id']) {//если у поста есть автор, значит это репост и мы получаем по его id логин, аватар и дату публикации оригинального поста
@@ -64,6 +67,7 @@ switch ($query_parameter) {
             'profile_data' => $profile_data,
             'posts' => $posts,
             'showed_comments_post_ids' => $showed_comments_post_ids,
+            'showed_comments_all_post_ids' => $showed_comments_all_post_ids,
             'new_comment' => $new_comment,
             'errors' => $errors,
         ]);
@@ -96,6 +100,7 @@ $page_content = include_template('profile.php', [
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
     'title' => 'readme: профиль',
+    'unread_messages_count' => $unread_messages_count,
 ]);
 
 print ($layout_content);

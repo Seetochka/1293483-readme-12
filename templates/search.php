@@ -15,7 +15,7 @@
                         <?php foreach ($posts as $post): ?>
                             <article class="search__post post post-<?= $post['class_name']; ?>">
                                 <header class="post__header post__author">
-                                    <a class="post__author-link" href="#" title="Автор">
+                                    <a class="post__author-link" href="/profile.php?id=<?= $post['user_id']; ?>" title="Автор">
                                         <div class="post__avatar-wrapper">
                                             <img class="post__author-avatar" src="<?= $post['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя" width="60" height="60">
                                         </div>
@@ -78,7 +78,7 @@
                                         </p>
                                         <?php if (htmlspecialchars($post['content']) !== $post_content): ?>
                                             <div class="post-text__more-link-wrapper">
-                                                <a class="post-text__more-link" href="#">Читать далее</a>
+                                                <a class="post-text__more-link" href="/post.php?id=<?= $post['id']; ?>">Читать далее</a>
                                             </div>
                                         <?php endif; ?>
                                         <?php break; ?>
@@ -86,17 +86,17 @@
                                 </div>
                                 <footer class="post__footer post__indicators">
                                     <div class="post__buttons">
-                                        <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
-                                            <svg class="post__indicator-icon" width="20" height="17">
+                                        <a class="post__indicator post__indicator--likes button" href="/actions/toggle-like.php?id=<?= $post['id']; ?>" title="Лайк">
+                                            <svg class="post__indicator-icon <?= $post['is_liked'] ? 'post__indicator-icon--like-active' : ''; ?>" width="20" height="17">
                                                 <use xlink:href="#icon-heart"></use>
                                             </svg>
-                                            <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
+                                            <svg class="post__indicator-icon <?= !$post['is_liked'] ? 'post__indicator-icon--like-active' : ''; ?>" width="20" height="17">
                                                 <use xlink:href="#icon-heart-active"></use>
                                             </svg>
                                             <span><?= $post['likes_count']; ?></span>
                                             <span class="visually-hidden">количество лайков</span>
                                         </a>
-                                        <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
+                                        <a class="post__indicator post__indicator--comments button" href="/post.php?id=<?= $post['id']; ?>" title="Комментарии">
                                             <svg class="post__indicator-icon" width="19" height="17">
                                                 <use xlink:href="#icon-comment"></use>
                                             </svg>

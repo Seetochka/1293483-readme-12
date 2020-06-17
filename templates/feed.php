@@ -73,7 +73,7 @@
                                     </p>
                                     <?php if (htmlspecialchars($post['content']) !== $post_content): ?>
                                         <div class="post-text__more-link-wrapper">
-                                            <a class="post-text__more-link" href="#">Читать далее</a>
+                                            <a class="post-text__more-link" href="/post.php?id=<? $post['id']; ?>">Читать далее</a>
                                         </div>
                                     <?php endif; ?>
                                     <?php break; ?>

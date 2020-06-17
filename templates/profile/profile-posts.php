@@ -61,7 +61,7 @@
                         <p><?= $post_content; ?></p>
                         <?php if (htmlspecialchars($post['content']) !== $post_content): ?>
                         <div class="post-text__more-link-wrapper">
-                            <a class="post-text__more-link" href="#">Читать далее</a>
+                            <a class="post-text__more-link" href="/post.php?id=<?= $post['id']; ?>">Читать далее</a>
                         </div>
                     <?php endif; ?>
                         <?php break; ?>
@@ -104,29 +104,29 @@
                 <?php else: ?>
                     <div class="comments__list-wrapper">
                         <ul class="comments__list">
-                            <?php foreach ($post['comments'] as $comment): ?>
+                            <?php for ($i = 0, $comment_num = min(count($post['comments']), $post['comments_count_in_page']); $i < $comment_num; $i++): ?>
                                 <li class="comments__item user">
                                     <div class="comments__avatar">
-                                        <a class="user__avatar-link" href="../profile.php?id=<?= $comment['user_id']; ?>">
-                                            <img class="comments__picture" src="../<?= $comment['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя" width="40" height="40">
+                                        <a class="user__avatar-link" href="../profile.php?id=<?= $post['comments'][$i]['user_id']; ?>">
+                                            <img class="comments__picture" src="../<?= $post['comments'][$i]['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя" width="40" height="40">
                                         </a>
                                     </div>
                                     <div class="comments__info">
                                         <div class="comments__name-wrapper">
-                                            <a class="comments__user-name" href="../profile.php?id=<?= $comment['user_id']; ?>">
-                                                <span><?= htmlspecialchars($comment['login']); ?></span>
+                                            <a class="comments__user-name" href="../profile.php?id=<?= $post['comments'][$i]['user_id']; ?>">
+                                                <span><?= htmlspecialchars($post['comments'][$i]['login']); ?></span>
                                             </a>
-                                            <time class="comments__time" datetime="<?= $comment['dt_add']; ?>"><?= format_time($comment['dt_add']); ?> назад</time>
+                                            <time class="comments__time" datetime="<?= $post['comments'][$i]['dt_add']; ?>"><?= format_time($post['comments'][$i]['dt_add']); ?> назад</time>
                                         </div>
                                         <p class="comments__text">
-                                            <?= htmlspecialchars($comment['content']); ?>
+                                            <?= htmlspecialchars($post['comments'][$i]['content']); ?>
                                         </p>
                                     </div>
                                 </li>
-                            <?php endforeach; ?>
+                            <?php endfor; ?>
                         </ul>
-                        <?php if($post['comments_count'] > MAX_COMMENT_COUNT): ?>
-                            <a class="comments__more-link" href="#">
+                        <?php if($post['comments_count'] > MAX_COMMENT_COUNT && $post['comments_count'] !== $post['comments_count_in_page']): ?>
+                            <a class="comments__more-link" href="<?= get_query_href(['comments-all' => !$showed_comments_all_post_ids ? $post['id'] : filter_input(INPUT_GET, 'comments-all') . "+{$post['id']}"], '/profile.php') ?>">
                                 <span>Показать все комментарии</span>
                                 <sup class="comments__amount"><?= $post['comments_count']; ?></sup>
                             </a>

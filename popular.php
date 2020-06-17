@@ -13,6 +13,7 @@ if (!isset($_SESSION['user'])) {
 date_default_timezone_set('Europe/Moscow');
 
 $user_data = $_SESSION['user'];
+$unread_messages_count = get_sql_unread_messages_count($link, $user_data['id']);
 $active_content_type = filter_input(INPUT_GET, 'content-type');
 
 $active_sorting_type = filter_input(INPUT_GET, 'sorting-type');
@@ -50,6 +51,7 @@ $page_content = include_template('popular.php', [
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
     'title' => 'readme: популярное',
+    'unread_messages_count' => $unread_messages_count,
 ]);
 
 print ($layout_content);

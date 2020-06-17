@@ -107,25 +107,12 @@ function get_sql_comments($connection, int $post_id, int $limit = 100): array {
 }
 
 /**
- * Получает число комментариев поста по его id
- * @param mysqli $connection Ресурс соединения
- * @param int $post_id id поста
- * @return int Число комментариев
- */
-function get_sql_comments_count($connection, int $post_id): int {
-    $sql_comments = "SELECT COUNT(c.id) AS count FROM comments c
-                WHERE c.post_id = ?";
-
-    return fetch_assoc($connection, $sql_comments, [$post_id])['count'];
-}
-
-/**
  * Получает массив с данными пользователя по его id
  * @param mysqli $connection Ресурс соединения
  * @param int $user_id id пользователя
- * @return array Массив с данными пользователя
+ * @return array | null Массив с данными пользователя или null если такого пользователя нет в БД
  */
-function get_sql_user($connection, int $user_id): array {
+function get_sql_user($connection, int $user_id): ?array {
     $sql_user = "SELECT u.id, u.dt_add, u.login, u.avatar,
                 (SELECT COUNT(follower_id) FROM subscriptions WHERE u.id = subscriptions.author_id) AS follower_count,
                 (SELECT COUNT(id) FROM posts WHERE u.id = posts.user_id) AS posts_count
@@ -484,4 +471,132 @@ function create_sql_comment($connection, string $comment, int $post_id, int $use
     $stmt = db_get_prepare_stmt($connection, $sql_comment, [$comment, $user_id, $post_id]);
 
     return mysqli_stmt_execute($stmt);
+}
+
+/**
+ * Получает массив собеседников с датой и текстом последнего сообщения
+ * @param mysqli $connection Ресурс соединения
+ * @param int $user_data_id id пользователя
+ * @return array Массив с собеседниками
+ */
+function get_sql_interlocutors($connection, int $user_data_id): array {
+    $sql_messages_sent = "SELECT DISTINCT m.sender_id AS id, m.content, m.dt_add FROM messages m
+                        WHERE m.receiver_id = ? AND m.dt_add = (SELECT MAX(m2.dt_add) FROM messages m2 
+                        WHERE m2.receiver_id = CASE m2.receiver_id
+                            WHEN m.sender_id THEN m.sender_id
+                            ELSE m.receiver_id END 
+                        AND m2.sender_id = CASE m2.sender_id
+                            WHEN m.sender_id THEN m.sender_id
+                            ELSE m.receiver_id END)
+                        UNION
+                        SELECT DISTINCT m.receiver_id AS id, m.content, m.dt_add FROM messages m
+                        WHERE m.sender_id = ? AND m.dt_add = (SELECT MAX(m2.dt_add) FROM messages m2 
+                        WHERE m2.receiver_id = CASE m2.receiver_id
+                            WHEN m.receiver_id THEN m.receiver_id
+                            ELSE m.sender_id END 
+                        AND m2.sender_id = CASE m2.sender_id
+                            WHEN m.receiver_id THEN m.receiver_id
+                            ELSE m.sender_id END)
+                        ORDER BY dt_add";
+
+    return fetch_all($connection, $sql_messages_sent, [$user_data_id, $user_data_id]);
+}
+
+
+/**
+ * Получает массив с перепиской пользователя и собеседника
+ * @param mysqli $connection Ресурс соединения
+ * @param int $user_data_id id пользователя
+ * @param int $interlocutor_id id собеседника
+ * @return array Массив с сообщениями
+ */
+function get_sql_messages($connection, int $user_data_id, int $interlocutor_id): array {
+    $sql_messages_sent = "SELECT DISTINCT m.sender_id, m.content, m.dt_add FROM messages m
+                        WHERE m.receiver_id = ? AND m.sender_id = ?
+                        UNION
+                        SELECT DISTINCT m.sender_id, m.content, m.dt_add FROM messages m
+                        WHERE m.sender_id = ? AND m.receiver_id = ?
+                        ORDER BY dt_add";
+
+    return fetch_all($connection, $sql_messages_sent, [$user_data_id, $interlocutor_id, $user_data_id, $interlocutor_id]);
+}
+
+/**
+ * Создает сообщение
+ * @param mysqli $connection Ресурс соединения
+ * @param string $message Текст сообщения
+ * @param int $sender_id id отправителя
+ * @param int $receiver_id id получателя
+ * @return bool true если сообщение создано, иначе false
+ */
+function create_sql_message($connection, string $message, int $sender_id, int $receiver_id): bool {
+    $sql_message = 'INSERT INTO messages (dt_add, content, sender_id, receiver_id) VALUES (NOW(), ?, ?, ?)';
+
+    $stmt = db_get_prepare_stmt($connection, $sql_message, [$message, $sender_id, $receiver_id]);
+
+    return mysqli_stmt_execute($stmt);
+}
+
+
+/**
+ * Помечает сообщение как прочитанное
+ * @param mysqli $connection Ресурс соединения
+ * @param int $sender_id id отправителя
+ * @param int $receiver_id id получателя
+ * @return bool true если сообщение отмечено как прочитанное, иначе false
+ */
+function read_sql_message($connection, int $sender_id, int $receiver_id) {
+    $read_message = 'UPDATE messages SET is_read = 1 WHERE sender_id = ? AND receiver_id = ? AND is_read = 0';
+
+    $stmt = db_get_prepare_stmt($connection, $read_message, [$sender_id, $receiver_id]);
+
+    return mysqli_stmt_execute($stmt);
+}
+
+/**
+ * Получает общее количество непрочитанных сообщений, либо от конкретного пользователя
+ * @param mysqli $connection Ресурс соединения
+ * @param int $receiver_id id получателя
+ * @param int $sender_id id отправителя, если нужно получить число непроситанных сообщений от этого пользователя
+ * @return int Число непрочитанных сообщений
+ */
+function get_sql_unread_messages_count($connection, int $receiver_id, int $sender_id = null): int {
+    $sql_unread_messages_count = 'SELECT COUNT(m.id) AS count FROM messages m WHERE receiver_id = ? AND is_read = 0';
+
+    if ($sender_id) {
+        $sql_unread_messages_count .= ' AND sender_id = ?';
+
+        return fetch_assoc($connection, $sql_unread_messages_count, [$receiver_id, $sender_id])['count'];
+    }
+
+    return fetch_assoc($connection, $sql_unread_messages_count, [$receiver_id])['count'];
+}
+
+/**
+ * Увеличивает число просмотров поста на 1
+ * @param mysqli $connection Ресурс соединения
+ * @param int $post_id id поста
+ * @return bool true если обновление числа просмотров прошло успешно, иначе false
+ */
+function increase_sql_show_count($connection, int $post_id): bool {
+    $sql_post_show_count = 'UPDATE posts SET show_count = show_count + 1 WHERE id = ?';
+
+    $stmt = db_get_prepare_stmt($connection, $sql_post_show_count, [$post_id]);
+
+    return mysqli_stmt_execute($stmt);
+}
+
+/**
+ * Получает подписчиков пользователя по его id
+ * @param mysqli $connection Ресурс соединения
+ * @param int $user_id id пользователя
+ * @return array Массив с подписчиками, на которых подписан пользователь
+ */
+function get_sql_followers($connection, int $user_id): array {
+    $sql_authors = 'SELECT u.id, u.email, u.login
+                    FROM users u
+                    INNER JOIN subscriptions s ON u.id = s.follower_id
+                    WHERE s.author_id = ?';
+
+    return fetch_all($connection, $sql_authors, [$user_id]);
 }

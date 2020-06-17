@@ -4,12 +4,15 @@ require_once 'init.php';
 require_once 'functions.php';
 require_once 'sql-queries.php';
 require_once 'constants.php';
+require_once 'mail.php';
 
 if (!isset($_SESSION['user'])) {
     header("Location: /");
     die();
 }
 
+$user_data = $_SESSION['user'];
+$unread_messages_count = get_sql_unread_messages_count($link, $user_data['id']);
 $form_title = ['фото', 'видео', 'текста', 'цитаты', 'ссылки'];
 
 $content_types = get_sql_content_types($link);
@@ -41,6 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $post_id = create_sql_post($link, $content_types[$index]['class_name'], $post_to_create);
 
         if ($post_id) {
+            $followers = get_sql_followers($link, $user_data['id']);
+
+            foreach ($followers as $follower) {
+                $message = new Swift_Message('Новая публикация от пользователя ' . $user_data['login']);
+                $message->setTo([$follower['email'] => $follower['login']]);
+                $message->setBody('Здравствуйте, ' . $follower['login'] . '. Пользователь ' . $user_data['login'] . ' только что опубликовал новую запись «' . $post_to_create['title'] . '». Посмотрите её на странице пользователя: http://1293483-readme-12/profile.php?id=' . $user_data['id']);
+                $message->setFrom(['keks@phpdemo.ru' => 'readme']);
+
+                $res = $mailer->send($message);
+            }
+
             header("Location: post.php?id=" . $post_id);
             die();
         }
@@ -72,6 +86,7 @@ $page_content = include_template('add-post.php', [
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
     'title' => 'readme: добавление публикации',
+    'unread_messages_count' => $unread_messages_count,
 ]);
 
 print ($layout_content);

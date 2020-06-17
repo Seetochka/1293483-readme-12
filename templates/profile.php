@@ -26,7 +26,7 @@
                     <?php if ($profile_data['id'] !== $user_data['id']): ?>
                         <a class="profile__user-button user__button user__button--subscription button button--<?= !$profile_data['is_follower'] ? 'main' : 'quartz'; ?>" href="/actions/toggle-subscription.php?author_id=<?= $profile_data['id'] ?>"><?= !$profile_data['is_follower'] ? 'Подписаться' : 'Отписаться'; ?></a>
                         <?php if ($profile_data['is_follower']): ?>
-                            <a class="profile__user-button user__button user__button--writing button button--green" href="#">Сообщение</a>
+                            <a class="profile__user-button user__button user__button--writing button button--green" href="/messages.php?id=<?= $profile_data['id']; ?>">Сообщение</a>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
@@ -39,15 +39,15 @@
                     <ul class="profile__tabs-list filters__list tabs__list">
                         <li class="profile__tabs-item filters__item">
                             <a class="profile__tabs-link filters__button tabs__item button <?= $query_parameter === 'posts' ? 'filters__button--active tabs__item--active' : ''; ?>"
-                               href="<?= get_query_href(['query-parameter' => null, 'comments' => null], '/profile.php'); ?>">Посты</a>
+                               href="<?= get_query_href(['query-parameter' => null, 'comments' => null, 'comments-all' => null], '/profile.php'); ?>">Посты</a>
                         </li>
                         <li class="profile__tabs-item filters__item">
                             <a class="profile__tabs-link filters__button tabs__item button <?= $query_parameter === 'likes' ? 'filters__button--active tabs__item--active' : ''; ?>"
-                               href="<?= get_query_href(['query-parameter' => 'likes', 'comments' => null], '/profile.php'); ?>">Лайки</a>
+                               href="<?= get_query_href(['query-parameter' => 'likes', 'comments' => null, 'comments-all' => null], '/profile.php'); ?>">Лайки</a>
                         </li>
                         <li class="profile__tabs-item filters__item">
                             <a class="profile__tabs-link filters__button tabs__item button <?= $query_parameter === 'subscriptions' ? 'filters__button--active tabs__item--active' : ''; ?>"
-                               href="<?= get_query_href(['query-parameter' => 'subscriptions', 'comments' => null], '/profile.php'); ?>">Подписки</a>
+                               href="<?= get_query_href(['query-parameter' => 'subscriptions', 'comments' => null, 'comments-all' => null], '/profile.php'); ?>">Подписки</a>
                         </li>
                     </ul>
                 </div>
