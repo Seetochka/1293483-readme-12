@@ -22,8 +22,6 @@ if (is_follower($link, $author_id, $user_data['id'])) {
     $res = $mailer->send($message);
 }
 
-if ($result) {
-    $path = $_SERVER['HTTP_REFERER'];
-    header("Location: $path");
-    die();
-}
+$path = $_SERVER['HTTP_REFERER'];
+header("Location: $path");
+die();

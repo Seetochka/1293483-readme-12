@@ -1,7 +1,4 @@
 <?php
-$is_auth = 1;
-$user_name = 'Светлана';
-
 $content_type_size = [
     'quote' => ['width' => '21', 'height' => '20'],
     'link' => ['width' => '21', 'height' => '18'],
@@ -18,3 +15,4 @@ define('PAGE_ITEMS_POOR_DB', 9);
 define('PAGE_ITEMS_RICH_DB', 6);
 define('COMMENT_MIN_SIZE', 4);
 define('HOURS_A_DAY', 24);
+define('WEEK', 7);

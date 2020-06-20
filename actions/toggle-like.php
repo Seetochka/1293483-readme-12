@@ -9,8 +9,6 @@ $post_id = filter_input(INPUT_GET, 'id');
 
 $result = create_like($link, $post_id, $user_data['id']);
 
-if ($result) {
-    $path = $_SERVER['HTTP_REFERER'];
-    header("Location: $path");
-    die();
-}
+$path = $_SERVER['HTTP_REFERER'];
+header("Location: $path");
+die();

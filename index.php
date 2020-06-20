@@ -9,11 +9,15 @@ if (isset($_SESSION['user'])) {
     die();
 }
 
-if ($_SERVER['REQUEST_METHOD'] =='POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $form = remove_space($_POST);
     $rules = [
-        'email' => function($value) {return validate_email($value); },
-        'password' => function($value) {return validate_field_completion($value); },
+        'email' => function ($value) {
+            return validate_email($value);
+        },
+        'password' => function ($value) {
+            return validate_field_completion($value);
+        },
     ];
 
     $errors = array_filter(validate($form, $rules));
@@ -21,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] =='POST') {
     if (!count($errors)) {
         $user_db = search_sql_email($link, $_POST['email']);
 
-        if ($user_db && password_verify($form['password'], $user_db['password'])) {
+        if (!empty($user_db) && password_verify($form['password'], $user_db['password'])) {
             $_SESSION['user'] = $user_db;
         } else {
             $errors['email'] = 'Вы ввели неверный email/пароль';
@@ -36,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] =='POST') {
 }
 
 $page_content = include_template('index.php', [
-    'form' => $form,
+    'form' => $form ?? [],
     'errors' => $errors ?? [],
 ]);
 

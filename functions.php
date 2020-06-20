@@ -1,8 +1,21 @@
 <?php
 /**
+ * Выполняет подключение к MySQL
+ * @param array $db_connection_data Массив с параметрами подключения к MySQL
+ *
+ * @return musqli Ресурс соединения или false, если подключение не удалось
+ */
+function get_db_connection(array $db_connection_data)
+{
+    return mysqli_connect($db_connection_data['host'], $db_connection_data['user'], $db_connection_data['password'],
+        $db_connection_data['database']);
+}
+
+/**
  * Функция обрезания текста при превышении максимально допустимой длины
  * @param string $text Проверяемая строка
  * @param int $max_length Максимально допустимая длина текста
+ *
  * @return string Первоначальную строку, если ее длина была меньше максимально допустимой, либо обрезанный текст
  */
 function cut_text(string $text, int $max_length = 300): string
@@ -31,11 +44,11 @@ function cut_text(string $text, int $max_length = 300): string
 /**
  * Возвращает дату в относительном формате, удобном для пользователя
  * @param string $date Дата в виде строки
+ *
  * @return string Дату в относительном формате
  */
-function format_time(string $date): string {
-    define('WEEK', 7);
-
+function format_time(string $date): string
+{
     $dt_current = date_create('now');
     $dt_date = date_create($date);
     $dt_diff = date_diff($dt_current, $dt_date);
@@ -47,31 +60,22 @@ function format_time(string $date): string {
         case ($date_diff_unix < strtotime('00-00-00 01:00')):
             $date_int = idate('i', $date_diff_unix);
             $noun_plural_form = get_noun_plural_form($date_int, 'минуту', 'минуты', 'минут');
-
             break;
-
         case ($date_diff_unix < strtotime('00-00-01 00:00')):
             $date_int = idate('H', $date_diff_unix);
             $noun_plural_form = get_noun_plural_form($date_int, 'час', 'часа', 'часов');
-
             break;
-
         case ($date_diff_unix < strtotime('00-00-07 00:00')):
             $date_int = idate('d', $date_diff_unix);
             $noun_plural_form = get_noun_plural_form($date_int, 'день', 'дня', 'дней');
-
             break;
-
         case ($date_diff_unix < strtotime('00-01-00 00:00')):
             $date_int = floor(idate('d', $date_diff_unix) / WEEK);
             $noun_plural_form = get_noun_plural_form($date_int, 'неделю', 'недели', 'недель');
-
             break;
-
         default:
             $date_int = idate('m', $date_diff_unix);
             $noun_plural_form = get_noun_plural_form($date_int, 'месяц', 'месяца', 'месяцев');
-
             break;
     }
 
@@ -82,9 +86,11 @@ function format_time(string $date): string {
  * Выполняет SQL запрос к базе данных
  * @param mysqli $connection Ресурс соединения
  * @param string $sql_request SQL запрос
- * @return  //Объект в случае удачного выполнения SQL запроса или сообщение об ошибке в случае неудачи
+ *
+ * @return musqli $query_result Объект в случае удачного выполнения SQL запроса или сообщение об ошибке в случае неудачи
  */
-function fetch($connection, string $sql_request) {
+function fetch($connection, string $sql_request)
+{
     $query_result = mysqli_query($connection, $sql_request);
 
     if (mysqli_errno($connection) > 0) {
@@ -100,9 +106,11 @@ function fetch($connection, string $sql_request) {
  * @param mysqli $connection Ресурс соединения
  * @param string $sql_request SQL запрос с плейсхолдерами вместо значений
  * @param array $data Данные для вставки на место плейсхолдеров
- * @return //Результат из подготовленного SQL запроса или false в случае ошибки
+ *
+ * @return musqli Результат из подготовленного SQL запроса или false в случае ошибки
  */
-function get_prepare_stmt($connection, string $sql_request, array  $data = []) {
+function get_prepare_stmt($connection, string $sql_request, array $data = [])
+{
     $stmt = db_get_prepare_stmt($connection, $sql_request, $data);
     mysqli_stmt_execute($stmt);
 
@@ -114,9 +122,11 @@ function get_prepare_stmt($connection, string $sql_request, array  $data = []) {
  * @param mysqli $connection Ресурс соединения
  * @param string $sql_request SQL запрос с плейсхолдерами вместо значений
  * @param array $data Данные для вставки на место плейсхолдеров
+ *
  * @return array | null Массив в случае удачного выполнения SQL запроса или false в случае ошибки
  */
-function fetch_all($connection, string $sql_request, array  $data = []): ?array {
+function fetch_all($connection, string $sql_request, array $data = []): ?array
+{
     $result = get_prepare_stmt($connection, $sql_request, $data);
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -127,9 +137,11 @@ function fetch_all($connection, string $sql_request, array  $data = []): ?array 
  * @param mysqli $connection Ресурс соединения
  * @param string $sql_request SQL запрос с плейсхолдерами вместо значений
  * @param array $data Данные для вставки на место плейсхолдеров
+ *
  * @return array | null Ассоциативный массив в случае удачного выполнения SQL запроса или false в случае ошибки
  */
-function fetch_assoc($connection, string $sql_request, array  $data = []): ?array {
+function fetch_assoc($connection, string $sql_request, array $data = []): ?array
+{
     $result = get_prepare_stmt($connection, $sql_request, $data);
 
     return mysqli_fetch_assoc($result);
@@ -138,9 +150,11 @@ function fetch_assoc($connection, string $sql_request, array  $data = []): ?arra
 /**
  * Выдает столбец, по которому будет производится сортировка, исходя из типа сортировки
  * @param string | null $active_sorting_type Тип сортировки
+ *
  * @return string Столбец для сортировки
  */
-function get_sorting_field(?string $active_sorting_type): string {
+function get_sorting_field(?string $active_sorting_type): string
+{
     switch ($active_sorting_type) {
         case 'date':
             return 'dt_add';
@@ -155,9 +169,11 @@ function get_sorting_field(?string $active_sorting_type): string {
  * Формирует URL исходя из переданного пути и параметров запроса
  * @param array $params Массив с параметрами запрса
  * @param string $path Адрес страницы
+ *
  * @return string Сформираванный URL
  */
-function get_query_href(array $params, string $path): string {
+function get_query_href(array $params, string $path): string
+{
     $current_params = $_GET;
     $merged_params = array_merge($current_params, $params);
     $query = http_build_query($merged_params);
@@ -170,38 +186,52 @@ function get_query_href(array $params, string $path): string {
  * @param array $array Массив по которому будет проходить поиск
  * @param string $field Ключ по которому будет проходить поиск
  * @param string $compared Искомое значение
- * @return int Индекс элемента массива
+ *
+ * @return int | null Индекс элемента массива или null, если в массиве нет такого значения
  */
-function find_index(array $array, string $field, string $compared): int {
+function find_index(array $array, string $field, string $compared): ?int
+{
     foreach ($array as $key => $value) {
-        if ($value[$field] == $compared) return $key;
+        if ($value[$field] == $compared) {
+            return $key;
+        }
     }
+
+    return null;
 }
 
 /**
  * Удаляет пробелы в начале и конце строк массива
  * @param array $array Массив
+ *
  * @return array Массив, в котором из каждой строки удалили пробелы в начале и конце
  */
-function remove_space(array $array): array {
-    return array_map(function($value) {return trim($value); }, $array);
+function remove_space(array $array): array
+{
+    return array_map(function ($value) {
+        return trim($value);
+    }, $array);
 }
 
 /**
  * Проверяет является ли строка корректным email
  * @param string $value Email
+ *
  * @return bool true при правильном email, иначе false
  */
-function is_email(string $value): bool {
+function is_email(string $value): bool
+{
     return boolval(filter_var($value, FILTER_VALIDATE_EMAIL));
 }
 
 /**
  * Проверяет пуста ли строка
  * @param string $value Проверяемая строка
+ *
  * @return bool true если строка не пустая, иначе false
  */
-function is_filled(string $value): bool {
+function is_filled(string $value): bool
+{
     return !empty($value);
 }
 
@@ -210,9 +240,11 @@ function is_filled(string $value): bool {
  * @param string $value Проверяемая строка
  * @param int $min Минимально допустимая длина
  * @param int $max Максимально допустимая длина
+ *
  * @return bool true при допустимой длине строки, иначе false
  */
-function is_correct_length(string $value, int $min = 0, int $max = INF): bool {
+function is_correct_length(string $value, int $min = 0, int $max = INF): bool
+{
     $length = iconv_strlen($value);
 
     return $length >= $min && $length <= $max;
@@ -221,18 +253,26 @@ function is_correct_length(string $value, int $min = 0, int $max = INF): bool {
 /**
  * Проверяет является ли строка корректной ссылкой
  * @param string $value Ссылка
+ *
  * @return bool true при корректной ссылке, иначе false
  */
-function is_correct_link(string $value): bool {
-    return boolval(filter_var(append_protocol($value), FILTER_VALIDATE_URL)) && @get_headers(append_protocol($value)) !== false;
+function is_correct_link(string $value): bool
+{
+    set_error_handler(function () {}, E_WARNING);
+    $headers = get_headers(append_protocol($value));
+    restore_error_handler();
+
+    return boolval(filter_var(append_protocol($value), FILTER_VALIDATE_URL)) && $headers !== false;
 }
 
 /**
  * Проверяет является ли строка ссылкой на видео YouTube
  * @param string $value Ссылка
+ *
  * @return bool true при корректной ссылке на видео YouTube, иначе false
  */
-function is_link_youtube(string $value): bool {
+function is_link_youtube(string $value): bool
+{
     $youtube_hosts = ['www.youtube.com', 'youtube.com', 'youtu.be'];
     $value = append_protocol($value);
 
@@ -246,9 +286,11 @@ function is_link_youtube(string $value): bool {
 /**
  * Проверяет возможно ли загрузить фото по ссылке
  * @param string $value Ссылка на фото
+ *
  * @return bool true если возможно загрузить файл по ссылке, иначе false
  */
-function is_available_resource(string $value): bool {
+function is_available_resource(string $value): bool
+{
     $headers = get_headers(append_protocol($value), 1);
 
     return boolval(strpos($headers[0], '200'));
@@ -257,9 +299,11 @@ function is_available_resource(string $value): bool {
 /**
  * Проверяет является ли строка корректным тегом
  * @param string $value Тег
+ *
  * @return bool true при корректном теге, иначе false
  */
-function is_tag(string $value): bool {
+function is_tag(string $value): bool
+{
     return boolval(preg_match('/^[a-zA-Zа-яёА-ЯЁ0-9_]+$/u', $value));
 }
 
@@ -267,9 +311,11 @@ function is_tag(string $value): bool {
  * Проверяет корректный ли MIME-тип загружаемого файла
  * @param string $file_type MIME-тип файла
  * @param array | string $mime_type Допустимые MIME-типы
+ *
  * @return bool true при корректном MIME-типе, иначе false
  */
-function is_correct_mime_types(string $file_type, $mime_type): bool {
+function is_correct_mime_types(string $file_type, $mime_type): bool
+{
     if (is_array($mime_type)) {
         return in_array($file_type, $mime_type);
     } elseif (!is_string($mime_type)) {
@@ -283,27 +329,33 @@ function is_correct_mime_types(string $file_type, $mime_type): bool {
  * Проверяет размер файла
  * @param int $value Размер файла
  * @param int $max_file_size Максимально допустимый размер файла
+ *
  * @return bool true при допустимом размере файла, иначе false
  */
-function is_correct_file_size(int $value, int $max_file_size): bool {
+function is_correct_file_size(int $value, int $max_file_size): bool
+{
     return $value <= $max_file_size;
 }
 
 /**
  * Проверяет, чтобы в составе пароля были минимум одна цифра и по одной букве верхнего и нижнего регистров
  * @param string $value Пароль
+ *
  * @return bool true соответствии пароля условию, иначе false
  */
-function is_strong_password(string $value): bool {
+function is_strong_password(string $value): bool
+{
     return boolval(preg_match('/^\S*(?=\S{6,128})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*$/', $value));
 }
 
 /**
- * Валидация поля Заголовок
- * @param string $value Содержимое поля Заголовок
+ * Валидация текстового поля
+ * @param string $value Содержимое текстового поля
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_title(string $value): ?string {
+function validate_text(string $value): ?string
+{
     $error_message = null;
 
     switch (false) {
@@ -321,9 +373,11 @@ function validate_title(string $value): ?string {
 /**
  * Валидация поля Ссылка
  * @param string $value Содержимое поля Ссылка
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_link(string $value): ?string {
+function validate_link(string $value): ?string
+{
     $error_message = null;
 
     switch (false) {
@@ -341,13 +395,11 @@ function validate_link(string $value): ?string {
 /**
  * Валидация поля Теги
  * @param string $value Содержимое поля Теги
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_tags(string $value): ?string {
-    if (!is_filled($value)) {
-        return 'Это поле должно быть заполнено';
-    }
-
+function validate_tags(string $value): ?string
+{
     $tag_array = array_filter(explode(' ', $value));
 
     foreach ($tag_array as $tag) {
@@ -362,11 +414,13 @@ function validate_tags(string $value): ?string {
 /**
  * Валидация заполненности поля
  * @param string $value Содержимое поля
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_field_completion(string $value): ?string {
+function validate_field_completion(string $value): ?string
+{
     if (!is_filled($value)) {
-        return'Это поле должно быть заполнено';
+        return 'Это поле должно быть заполнено';
     }
 
     return null;
@@ -375,9 +429,11 @@ function validate_field_completion(string $value): ?string {
 /**
  * Валидация поля Текст цитаты
  * @param string $value Содержимое поля Текст цитаты
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_content_quote(string $value): ?string {
+function validate_content_quote(string $value): ?string
+{
     $error_message = null;
 
     switch (false) {
@@ -393,31 +449,13 @@ function validate_content_quote(string $value): ?string {
 }
 
 /**
- * Валидация поля Автор
- * @param string $value Содержимое поля Автор
- * @return string | null Текст ошибки или null, если валидация пройдена
- */
-function validate_quote_author(string $value): ?string {
-    $error_message = null;
-
-    switch (false) {
-        case (is_filled($value)):
-            $error_message = 'Это поле должно быть заполнено';
-            break;
-        case (is_correct_length($value, 0, DATABASE_VARCHAR_MAX_SIZE)):
-            $error_message = 'Введите значение до ' . DATABASE_VARCHAR_MAX_SIZE . ' символов';
-            break;
-    }
-
-    return $error_message;
-}
-
-/**
  * Валидация загружаемого файла для поста фото
  * @param array $value Массив с данными файла
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_photo(array $value): ?string {
+function validate_photo(array $value): ?string
+{
     $error_message = null;
     $image_mime_types = ['image/jpeg', 'image/png', 'image/gif'];
     $file_type = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $value['tmp_name']);
@@ -437,9 +475,11 @@ function validate_photo(array $value): ?string {
 /**
  * Валидация поля Ссылка из интернета
  * @param string $value Содержимое поля Ссылка из интернета
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_link_photo(string $value): ?string {
+function validate_link_photo(string $value): ?string
+{
     $error_message = null;
     $image_mime_types = ['image/jpeg', 'image/png', 'image/gif'];
     $headers = [];
@@ -469,9 +509,11 @@ function validate_link_photo(string $value): ?string {
 /**
  * Валидация поля Ссылка YouTube
  * @param string $value Содержимое поля Ссылка YouTube
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_link_youtube(string $value): ?string {
+function validate_link_youtube(string $value): ?string
+{
     $error_message = null;
 
     switch (false) {
@@ -492,9 +534,11 @@ function validate_link_youtube(string $value): ?string {
 /**
  * Валидация поля Электронная почта
  * @param string $value Содержимое поля Электронная почта
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_email(string $value): ?string {
+function validate_email(string $value): ?string
+{
     $error_message = null;
 
     switch (false) {
@@ -512,9 +556,11 @@ function validate_email(string $value): ?string {
 /**
  * Валидация поля Логин
  * @param string $value Содержимое поля Логин
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_login(string $value): ?string {
+function validate_login(string $value): ?string
+{
     $error_message = null;
 
     switch (false) {
@@ -532,9 +578,11 @@ function validate_login(string $value): ?string {
 /**
  * Валидация поля Пароль
  * @param string $value Содержимое поля Пароль
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_password(string $value): ?string {
+function validate_password(string $value): ?string
+{
     $error_message = null;
 
     switch (false) {
@@ -552,9 +600,11 @@ function validate_password(string $value): ?string {
 /**
  * Валидация поля Повтор пароля
  * @param string $value Содержимое поля Повтор пароля
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_password_repeat(string $value): ?string {
+function validate_password_repeat(string $value): ?string
+{
     $error_message = null;
 
     switch (false) {
@@ -572,9 +622,11 @@ function validate_password_repeat(string $value): ?string {
 /**
  * Валидация загружаемого файла для аватара
  * @param array $value Массив с данными файла
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_avatar(array $value): ?string {
+function validate_avatar(array $value): ?string
+{
     $error_message = null;
     $image_mime_types = ['image/jpeg', 'image/png'];
     $file_type = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $value['tmp_name']);
@@ -594,9 +646,11 @@ function validate_avatar(array $value): ?string {
 /**
  * Валидация комментария
  * @param string $value Содержимое комментария
+ *
  * @return string | null Текст ошибки или null, если валидация пройдена
  */
-function validate_comment(string $value): ?string {
+function validate_comment(string $value): ?string
+{
     $error_message = null;
 
     switch (false) {
@@ -615,10 +669,12 @@ function validate_comment(string $value): ?string {
  * Валидация массива данных по массиву правил
  * @param array $data_array Массив данных для валидации
  * @param array $rules_array Массив правил валидации
+ *
  * @return array Массив с ошибками
  */
-function validate(array $data_array, array $rules_array): array  {
-    $errors =[];
+function validate(array $data_array, array $rules_array): array
+{
+    $errors = [];
 
     foreach ($data_array as $key => $value) {
         if (isset($rules_array[$key])) {
@@ -633,9 +689,11 @@ function validate(array $data_array, array $rules_array): array  {
 /**
  * Загружает файл в папку uploads
  * @param string | array $file Файл, который нужно записать
+ *
  * @return string Имя записанного файла
  */
-function upload_file($file): string {
+function upload_file($file): string
+{
     $file_extension = [
         'image/jpeg' => 'jpg',
         'image/png' => 'png',
@@ -664,9 +722,11 @@ function upload_file($file): string {
  * Преобразует массив с данными если тип контента - Фото
  * @param array Первоначальный массив с данными
  * @param string $content_type Тип контента
+ *
  * @return array Массив с данными
  */
-function prepare_post_data(array $post, string $content_type): array {
+function prepare_post_data(array $post, string $content_type): array
+{
     if ($content_type === 'photo') {
         if (!empty($_FILES['photo']['name'])) {
             $post['photo'] = upload_file($_FILES['photo']);
@@ -681,36 +741,58 @@ function prepare_post_data(array $post, string $content_type): array {
 }
 
 /**
- * Подготавливает массив с правилами валидации в зависимости от типа контента
+ * Подготавливает массив с правилами валидации
  * @param string $content_type Тип контента
+ * @param string $hashtag Теги поста
+ *
  * @return array Массив с правилами валидации
  */
-function prepare_post_rules(string $content_type): array {
-    $rules = [
-        'title' => function($value) {return validate_title($value); },
-        'hashtag_name' => function($value) {return validate_tags($value); },
-    ];
+function prepare_post_rules(string $content_type, string $hashtag): array
+{
+    $rules['title'] = function ($value) {
+            return validate_text($value);
+    };
+
+    if (!empty($hashtag)) {
+        $rules['hashtag_name'] = function ($value) {
+            return validate_tags($value);
+        };
+    }
 
     switch ($content_type) {
         case 'photo':
             if (!empty($_FILES['photo']['name'])) {
-                $rules['photo'] = function($value) {return validate_photo($value); };
+                $rules['photo'] = function ($value) {
+                    return validate_photo($value);
+                };
             } else {
-                $rules['link'] = function($value) {return validate_link_photo($value); };
+                $rules['link'] = function ($value) {
+                    return validate_link_photo($value);
+                };
             }
             break;
         case 'video':
-            $rules['video'] = function($value) {return validate_link_youtube($value); };
+            $rules['video'] = function ($value) {
+                return validate_link_youtube($value);
+            };
             break;
         case 'text':
-            $rules['content'] = function($value) {return validate_field_completion($value); };
+            $rules['content'] = function ($value) {
+                return validate_field_completion($value);
+            };
             break;
         case 'quote':
-            $rules['content'] = function($value) {return validate_content_quote($value); };
-            $rules['quote_author'] = function($value) {return validate_quote_author($value); };
+            $rules['content'] = function ($value) {
+                return validate_content_quote($value);
+            };
+            $rules['quote_author'] = function ($value) {
+                return validate_text($value);
+            };
             break;
         case 'link':
-            $rules['link'] = function($value) {return validate_link($value); };
+            $rules['link'] = function ($value) {
+                return validate_link($value);
+            };
             break;
     }
 
@@ -720,8 +802,10 @@ function prepare_post_rules(string $content_type): array {
 /**
  * Проверяет наличие протокола в ссылке, если его нет - добавляет
  * @param string $value Ссылка
+ *
  * @return string Ссылка с протоколом
  */
-function append_protocol(string $value): string {
+function append_protocol(string $value): string
+{
     return parse_url($value, PHP_URL_SCHEME) ? $value : "http://{$value}";
 }

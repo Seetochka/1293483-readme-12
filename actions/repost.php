@@ -14,17 +14,20 @@ if (empty($post)) {
     die();
 }
 
-if ($post['user_id'] === $user_data['id']) {//не дает сделать репост своего поста, выполняет переадресацию на страницу пользователя
+//не дает сделать репост своего поста, выполняет переадресацию на страницу пользователя
+if ($post['user_id'] === $user_data['id']) {
     header('Location: /profile.php?id=' . $user_data['id']);
     die();
 }
 
-if (!empty($post['original_id'])) {//если я пытаюсь сделать репост репоста, то делаю репост оригинального поста
+//не дает сделать репост репоста, делает репост оригинального поста
+if (!empty($post['original_id'])) {
     header('Location: /actions/repost.php?id=' . $post['original_id']);
     die();
 }
 
-if (is_reposted($link, $post_id, $user_data['id'])) {//не дает сделать повторный репост, выполняет переадресацию на страницу пользователя
+//не дает сделать повторный репост, выполняет переадресацию на страницу пользователя
+if (is_reposted($link, $post_id, $user_data['id'])) {
     header('Location: /profile.php?id=' . $user_data['id']);
     die();
 }
@@ -55,7 +58,5 @@ $repost['hashtag_name'] = implode(' ', get_sql_hashtags($link, $post_id));
 
 $post_id = create_sql_post($link, $content_type, $repost);
 
-if ($post_id) {
-    header("Location: /profile.php?id=" . $user_data['id']);
-    die();
-}
+header("Location: /profile.php?id=" . $user_data['id']);
+die();

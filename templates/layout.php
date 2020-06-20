@@ -25,11 +25,10 @@
         <?php if ($_SERVER['REQUEST_URI'] === '/registration.php'): ?>
             <div class="header__nav-wrapper">
                 <nav class="header__nav">
-                    <ul class="header__my-nav">
-                    </ul>
-                    <ul class="header__user-nav">
+                    <ul class="header__user-nav" style="margin-left: auto;">
                         <li class="header__authorization">
-                            <a class="header__user-button header__authorization-button button" href="login.html">Вход</a>
+                            <a class="header__user-button header__authorization-button button"
+                               href="/index.php">Вход</a>
                         </li>
                         <li>
                             <a class="header__user-button header__user-button--active header__register-button button">Регистрация</a>
@@ -41,7 +40,8 @@
             <form class="header__search-form form" action="/search.php" method="get">
                 <div class="header__search">
                     <label class="visually-hidden">Поиск</label>
-                    <input class="header__search-input form__input" type="search" name="q" value="<?= htmlspecialchars($search_query) ?? ''; ?>">
+                    <input class="header__search-input form__input" type="search" name="q"
+                           value="<?= !empty($search_query) ? htmlspecialchars($search_query) : ''; ?>">
                     <button class="header__search-button button" type="submit">
                         <svg class="header__search-icon" width="18" height="18">
                             <use xlink:href="#icon-search"></use>
@@ -54,17 +54,20 @@
                 <nav class="header__nav">
                     <ul class="header__my-nav">
                         <li class="header__my-page header__my-page--popular">
-                            <a class="header__page-link <?= $_SERVER['PHP_SELF'] === '/popular.php' ? 'header__page-link--active' :''; ?>" href="/popular.php" title="Популярный контент">
+                            <a class="header__page-link <?= $_SERVER['PHP_SELF'] === '/popular.php' ? 'header__page-link--active' : ''; ?>"
+                               href="/popular.php" title="Популярный контент">
                                 <span class="visually-hidden">Популярный контент</span>
                             </a>
                         </li>
                         <li class="header__my-page header__my-page--feed">
-                            <a class="header__page-link <?= $_SERVER['PHP_SELF'] === '/feed.php' ? 'header__page-link--active' :''; ?>" href="/feed.php" title="Моя лента">
+                            <a class="header__page-link <?= $_SERVER['PHP_SELF'] === '/feed.php' ? 'header__page-link--active' : ''; ?>"
+                               href="/feed.php" title="Моя лента">
                                 <span class="visually-hidden">Моя лента</span>
                             </a>
                         </li>
                         <li class="header__my-page header__my-page--messages">
-                            <a class="header__page-link <?= $_SERVER['PHP_SELF'] === '/messages.php' ? 'header__page-link--active' :''; ?>" href="/messages.php" title="Личные сообщения">
+                            <a class="header__page-link <?= $_SERVER['PHP_SELF'] === '/messages.php' ? 'header__page-link--active' : ''; ?>"
+                               href="/messages.php" title="Личные сообщения">
                                 <span class="visually-hidden">Личные сообщения</span>
                             </a>
                         </li>
@@ -73,12 +76,14 @@
                         <li class="header__profile">
                             <a class="header__profile-link" href="/profile.php?id=<?= $_SESSION['user']['id']; ?>">
                                 <div class="header__avatar-wrapper">
-                                    <img class="header__profile-avatar" src="<?= $_SESSION['user']['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар профиля">
+                                    <img class="header__profile-avatar"
+                                         src="<?= $_SESSION['user']['avatar'] ?? 'img/icon-input-user.svg'; ?>"
+                                         alt="Аватар профиля">
                                 </div>
                                 <div class="header__profile-name">
-                                <span>
-                                    <?= $_SESSION['user']['login']; ?>
-                                </span>
+                                    <span>
+                                        <?= $_SESSION['user']['login']; ?>
+                                    </span>
                                     <svg class="header__link-arrow" width="10" height="6">
                                         <use xlink:href="#icon-arrow-right-ad"></use>
                                     </svg>
@@ -88,7 +93,8 @@
                                 <div class="header__profile-tooltip">
                                     <ul class="header__profile-nav">
                                         <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="/profile.php?id=<?= $_SESSION['user']['id']; ?>">
+                                            <a class="header__profile-nav-link"
+                                               href="/profile.php?id=<?= $_SESSION['user']['id']; ?>">
                                                 <span class="header__profile-nav-text">
                                                     Мой профиль
                                                 </span>
@@ -120,8 +126,8 @@
                         </li>
                     </ul>
                 </nav>
-            <?php endif ?>
-        </div>
+            </div>
+        <?php endif ?>
     </div>
 </header>
 
@@ -154,7 +160,9 @@
                     </ul>
                 </div>
                 <p class="footer__license">
-                    При использовании любых материалов с сайта обязательно указание Readme в качестве источника. Все авторские и исключительные права в рамках проекта защищены в соответствии с положениями 4 части Гражданского Кодекса Российской Федерации.
+                    При использовании любых материалов с сайта обязательно указание Readme в качестве источника. Все
+                    авторские и исключительные права в рамках проекта защищены в соответствии с положениями 4 части
+                    Гражданского Кодекса Российской Федерации.
                 </p>
             </div>
             <div class="footer__my-info">

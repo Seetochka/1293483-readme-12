@@ -5,28 +5,42 @@
             <div class="profile__user user container">
                 <div class="profile__user-info user__info">
                     <div class="profile__avatar user__avatar">
-                        <img class="profile__picture user__picture" src="<?= $profile_data['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя" width="100" height="100">
+                        <img class="profile__picture user__picture"
+                             src="<?= $profile_data['avatar'] ?? 'img/icon-input-user.svg'; ?>"
+                             alt="Аватар пользователя" width="100" height="100">
                     </div>
                     <div class="profile__name-wrapper user__name-wrapper">
-                        <span class="profile__name user__name"><?= htmlspecialchars($profile_data['login']); ?></span>
-                        <time class="profile__user-time user__time" datetime="<?= $profile_data['dt_add']; ?>"><?= format_time($profile_data['dt_add']); ?> на сайте</time>
+                        <span class="profile__name user__name"><?php foreach ($profile_data['login'] as $login) {
+                                echo htmlspecialchars($login) . '<br>';
+                            }; ?></span>
+                        <time class="profile__user-time user__time" datetime="<?= $profile_data['dt_add']; ?>"
+                              title="<?= date_format(date_create($profile_data['dt_add']),
+                                  'd.m.Y H:i'); ?>"><?= format_time($profile_data['dt_add']); ?> на сайте
+                        </time>
                     </div>
                 </div>
                 <div class="profile__rating user__rating">
+                    <p class="profile__rating-item user__rating-item">
+                        <?= date_format(date_create($profile_data['dt_add']), 'd.m.Y'); ?>
+                    </p>
                     <p class="profile__rating-item user__rating-item user__rating-item--publications">
                         <span class="user__rating-amount"><?= $profile_data['posts_count']; ?></span>
-                        <span class="profile__rating-text user__rating-text"><?= get_noun_plural_form($profile_data['posts_count'] , 'публикация', 'публикации', 'побликаций'); ?></span>
+                        <span class="profile__rating-text user__rating-text"><?= get_noun_plural_form($profile_data['posts_count'],
+                                'публикация', 'публикации', 'побликаций'); ?></span>
                     </p>
                     <p class="profile__rating-item user__rating-item user__rating-item--subscribers">
                         <span class="user__rating-amount"><?= $profile_data['follower_count']; ?></span>
-                        <span class="profile__rating-text user__rating-text"><?= get_noun_plural_form($profile_data['follower_count'], 'подписчик', 'подписчика', 'подписчиков'); ?></span>
+                        <span class="profile__rating-text user__rating-text"><?= get_noun_plural_form($profile_data['follower_count'],
+                                'подписчик', 'подписчика', 'подписчиков'); ?></span>
                     </p>
                 </div>
                 <div class="profile__user-buttons user__buttons">
                     <?php if ($profile_data['id'] !== $user_data['id']): ?>
-                        <a class="profile__user-button user__button user__button--subscription button button--<?= !$profile_data['is_follower'] ? 'main' : 'quartz'; ?>" href="/actions/toggle-subscription.php?author_id=<?= $profile_data['id'] ?>"><?= !$profile_data['is_follower'] ? 'Подписаться' : 'Отписаться'; ?></a>
+                        <a class="profile__user-button user__button user__button--subscription button button--<?= !$profile_data['is_follower'] ? 'main' : 'quartz'; ?>"
+                           href="/actions/toggle-subscription.php?author_id=<?= $profile_data['id'] ?>"><?= !$profile_data['is_follower'] ? 'Подписаться' : 'Отписаться'; ?></a>
                         <?php if ($profile_data['is_follower']): ?>
-                            <a class="profile__user-button user__button user__button--writing button button--green" href="/messages.php?id=<?= $profile_data['id']; ?>">Сообщение</a>
+                            <a class="profile__user-button user__button user__button--writing button button--green"
+                               href="/messages.php?id=<?= $profile_data['id']; ?>">Сообщение</a>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
@@ -39,15 +53,27 @@
                     <ul class="profile__tabs-list filters__list tabs__list">
                         <li class="profile__tabs-item filters__item">
                             <a class="profile__tabs-link filters__button tabs__item button <?= $query_parameter === 'posts' ? 'filters__button--active tabs__item--active' : ''; ?>"
-                               href="<?= get_query_href(['query-parameter' => null, 'comments' => null, 'comments-all' => null], '/profile.php'); ?>">Посты</a>
+                               href="<?= get_query_href([
+                                   'query-parameter' => null,
+                                   'comments' => null,
+                                   'comments-all' => null
+                               ], '/profile.php'); ?>">Посты</a>
                         </li>
                         <li class="profile__tabs-item filters__item">
                             <a class="profile__tabs-link filters__button tabs__item button <?= $query_parameter === 'likes' ? 'filters__button--active tabs__item--active' : ''; ?>"
-                               href="<?= get_query_href(['query-parameter' => 'likes', 'comments' => null, 'comments-all' => null], '/profile.php'); ?>">Лайки</a>
+                               href="<?= get_query_href([
+                                   'query-parameter' => 'likes',
+                                   'comments' => null,
+                                   'comments-all' => null
+                               ], '/profile.php'); ?>">Лайки</a>
                         </li>
                         <li class="profile__tabs-item filters__item">
                             <a class="profile__tabs-link filters__button tabs__item button <?= $query_parameter === 'subscriptions' ? 'filters__button--active tabs__item--active' : ''; ?>"
-                               href="<?= get_query_href(['query-parameter' => 'subscriptions', 'comments' => null, 'comments-all' => null], '/profile.php'); ?>">Подписки</a>
+                               href="<?= get_query_href([
+                                   'query-parameter' => 'subscriptions',
+                                   'comments' => null,
+                                   'comments-all' => null
+                               ], '/profile.php'); ?>">Подписки</a>
                         </li>
                     </ul>
                 </div>
