@@ -12,10 +12,10 @@ if (!isset($_SESSION['user'])) {
 }
 
 $user_data = $_SESSION['user'];
-$interlocutor_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?? null;
-$interlocutor_data = $interlocutor_id ? get_sql_user($link, $interlocutor_id) : null;
+$interlocutor_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$interlocutor_data = !empty($interlocutor_id) ? get_sql_user($link, $interlocutor_id) : null;
 
-if (!empty($interlocutor_id) && empty($interlocutor_data)) {//если получен id, но такого пользователя нет в базе, то выдать страницу 404
+if (isset($interlocutor_id) && empty($interlocutor_data)) {
     header("HTTP/1.0 404 Not Found");
     $error_msg = 'Не удалось выполнить запрос: ' . mysqli_error($link);
     die($error_msg);
@@ -26,32 +26,37 @@ if (!empty($interlocutor_data)) {
 }
 
 $unread_messages_count = get_sql_unread_messages_count($link, $user_data['id']);
-$interlocutors = get_sql_interlocutors($link, $user_data['id']);//получение id собеседников пользователя и последнего сообщения из переписки с датой
+$interlocutors = get_sql_interlocutors($link, $user_data['id']);
 $is_interlocutor = false;
 
 foreach ($interlocutors as $key => $interlocutor) {
-    if ($interlocutor_id === $interlocutor['id']) {//проверяет, существует ли переписка с пользователем
+    if ($interlocutor_id === $interlocutor['id']) {
         $is_interlocutor = true;
     }
 
     $user = get_sql_user($link, $interlocutor['id']);
     $interlocutors[$key]['avatar'] = $user['avatar'];
     $interlocutors[$key]['login'] = $user['login'];
-    $interlocutors[$key]['unread_messages_count'] = get_sql_unread_messages_count($link, $user_data['id'], $interlocutor['id']);
+    $interlocutors[$key]['unread_messages_count'] = get_sql_unread_messages_count($link, $user_data['id'],
+        $interlocutor['id']);
 
     $date_diff = strtotime('now') - strtotime($interlocutor['dt_add']);
     $hours_count = $date_diff / 3600;
 
     if ($hours_count <= HOURS_A_DAY) {
-        $interlocutors[$key]['date'] = date_format(date_create($interlocutor['dt_add']), 'H:i');//если с момента отправки сообщения прошло меньше суток, то показать время отправки
+        $interlocutors[$key]['date'] = date_format(date_create($interlocutor['dt_add']), 'H:i');
     } else {
-        $interlocutors[$key]['date'] = date_format(date_create($interlocutor['dt_add']), 'j M');//если больше, то дату отправки
+        $interlocutors[$key]['date'] = date_format(date_create($interlocutor['dt_add']), 'j M');
     }
 }
 
 if (!empty($interlocutor_data)) {
-    if (!$is_interlocutor) {//добавляет собеседника, если ранее с ним не было переписки
-        $interlocutors[] = array('id' => $interlocutor_data['id'], 'avatar' => $interlocutor_data['avatar'], 'login' => $interlocutor_data['login']);
+    if (!$is_interlocutor) {
+        $interlocutors[] = array(
+            'id' => $interlocutor_data['id'],
+            'avatar' => $interlocutor_data['avatar'],
+            'login' => $interlocutor_data['login']
+        );
     } else {
         $messages = get_sql_messages($link, $user_data['id'], $interlocutor_id);
 
@@ -63,9 +68,13 @@ if (!empty($interlocutor_data)) {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new_message = remove_space($_POST);
-    $rules = ['content' => function($value) {return validate_field_completion($value); },];
+    $rules = [
+        'content' => function ($value) {
+            return validate_field_completion($value);
+        },
+    ];
 
     $errors = array_filter(validate($new_message, $rules));
 
@@ -73,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $result = create_sql_message($link, $new_message['content'], $user_data['id'], $interlocutor_id);
 
         if ($result) {
-            header('Location: messages.php?id='. $interlocutor_id);
+            header('Location: messages.php?id=' . $interlocutor_id);
             die();
         }
 
@@ -89,6 +98,7 @@ $page_content = include_template('messages.php', [
     'errors' => $errors ?? [],
     'new_message' => $new_message ?? [],
 ]);
+
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
     'title' => 'readme: личные сообщения',

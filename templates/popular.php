@@ -8,8 +8,12 @@
                 <b class="popular__sorting-caption sorting__caption">Сортировка:</b>
                 <ul class="popular__sorting-list sorting__list">
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link <?= !$active_sorting_type ? 'sorting__link--active' :''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : ''; ?>"
-                           href="<?= get_query_href(['page' => null, 'sorting-type' => null, 'sorting-order' => (!$active_sorting_type and $sorting_order !== 'asc') ? 'asc' : null], '/popular.php'); ?>">
+                        <a class="sorting__link <?= empty($active_sorting_type) ? 'sorting__link--active' : ''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : ''; ?>"
+                           href="<?= get_query_href([
+                               'page' => null,
+                               'sorting-type' => null,
+                               'sorting-order' => (empty($active_sorting_type) && $sorting_order !== 'asc') ? 'asc' : null
+                           ], '/popular.php'); ?>">
                             <span>Популярность</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -17,8 +21,12 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link <?= $active_sorting_type === 'likes' ? 'sorting__link--active' :''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : ''; ?>"
-                           href="<?= get_query_href(['page' => null, 'sorting-type' => 'likes', 'sorting-order' => ($active_sorting_type === 'likes' and $sorting_order !== 'asc') ? 'asc' : null], '/popular.php'); ?>">
+                        <a class="sorting__link <?= $active_sorting_type === 'likes' ? 'sorting__link--active' : ''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : ''; ?>"
+                           href="<?= get_query_href([
+                               'page' => null,
+                               'sorting-type' => 'likes',
+                               'sorting-order' => ($active_sorting_type === 'likes' and $sorting_order !== 'asc') ? 'asc' : null
+                           ], '/popular.php'); ?>">
                             <span>Лайки</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -26,8 +34,12 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link <?= $active_sorting_type === 'date' ? 'sorting__link--active' :''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : ''; ?>"
-                           href="<?= get_query_href(['page' => null, 'sorting-type' => 'date', 'sorting-order' => ($active_sorting_type === 'date' and $sorting_order !== 'asc') ? 'asc' : null], '/popular.php'); ?>">
+                        <a class="sorting__link <?= $active_sorting_type === 'date' ? 'sorting__link--active' : ''; ?> <?= $sorting_order === 'asc' ? 'sorting__link--reverse' : ''; ?>"
+                           href="<?= get_query_href([
+                               'page' => null,
+                               'sorting-type' => 'date',
+                               'sorting-order' => ($active_sorting_type === 'date' and $sorting_order !== 'asc') ? 'asc' : null
+                           ], '/popular.php'); ?>">
                             <span>Дата</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -40,8 +52,13 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?= !$active_content_type ? 'filters__button--active' : ''; ?>"
-                           href="<?= get_query_href(['page' => null, 'content-type' => null, 'sorting-type' => null, 'sorting-order' => null], '/popular.php'); ?>">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?= empty($active_content_type) ? 'filters__button--active' : ''; ?>"
+                           href="<?= get_query_href([
+                               'page' => null,
+                               'content-type' => null,
+                               'sorting-type' => null,
+                               'sorting-order' => null
+                           ], '/popular.php'); ?>">
                             <span>Все</span>
                         </a>
                     </li>
@@ -49,9 +66,15 @@
                         $type = $content_type['class_name']; ?>
                         <li class="popular__filters-item filters__item">
                             <a class="filters__button filters__button--<?= $content_type['class_name']; ?> button <?= $content_type['id'] === $active_content_type ? 'filters__button--active' : ''; ?>"
-                               href="<?= get_query_href(['page' => null, 'content-type' => $content_type['id'], 'sorting-type' => null, 'sorting-order' => null], '/popular.php'); ?>">
+                               href="<?= get_query_href([
+                                   'page' => null,
+                                   'content-type' => $content_type['id'],
+                                   'sorting-type' => null,
+                                   'sorting-order' => null
+                               ], '/popular.php'); ?>">
                                 <span class="visually-hidden"><?= $content_type['title']; ?></span>
-                                <svg class="filters__icon" width="<?= $content_type_size[$type]['width']; ?>" height="<?= $content_type_size[$type]['height']; ?>">
+                                <svg class="filters__icon" width="<?= $content_type_size[$type]['width']; ?>"
+                                     height="<?= $content_type_size[$type]['height']; ?>">
                                     <use xlink:href="#icon-filter-<?= $content_type['class_name']; ?>"></use>
                                 </svg>
                             </a>
@@ -68,7 +91,6 @@
                     </header>
                     <div class="post__main">
                         <?php switch ($post['class_name']):
-
                             case 'quote': ?>
                                 <blockquote>
                                     <p>
@@ -77,13 +99,15 @@
                                     <cite><?= htmlspecialchars($post['quote_author']); ?></cite>
                                 </blockquote>
                                 <?php break; ?>
-
                             <?php case 'link': ?>
                                 <div class="post-link__wrapper">
-                                    <a class="post-link__external" href="<?= append_protocol(htmlspecialchars($post['link'])); ?>" title="Перейти по ссылке">
+                                    <a class="post-link__external"
+                                       href="<?= append_protocol(htmlspecialchars($post['link'])); ?>"
+                                       title="Перейти по ссылке">
                                         <div class="post-link__info-wrapper">
                                             <div class="post-link__icon-wrapper">
-                                                <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($post['link']); ?>" alt="Иконка" width="16" height="16">
+                                                <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($post['link']); ?>"
+                                                     alt="Иконка" width="16" height="16">
                                             </div>
                                             <div class="post-link__info">
                                                 <h3><?= htmlspecialchars($post['title']); ?></h3>
@@ -93,13 +117,12 @@
                                     </a>
                                 </div>
                                 <?php break; ?>
-
                             <?php case 'photo': ?>
                                 <div class="post-photo__image-wrapper">
-                                    <img src="<?= htmlspecialchars($post['photo']); ?>" alt="<?= htmlspecialchars($post['title']); ?>" width="360" height="240">
+                                    <img src="<?= htmlspecialchars($post['photo']); ?>"
+                                         alt="<?= htmlspecialchars($post['title']); ?>" width="360" height="240">
                                 </div>
                                 <?php break; ?>
-
                             <?php case 'video': ?>
                                 <div class="post-video__block">
                                     <div class="post-video__preview">
@@ -113,44 +136,52 @@
                                     </a>
                                 </div>
                                 <?php break; ?>
-
                             <?php case 'text':
-                                $post_content = cut_text(htmlspecialchars($post['content']));
-                                ?>
+                                $post_content = cut_text(htmlspecialchars($post['content'])); ?>
                                 <p><?= $post_content; ?></p>
                                 <?php if (htmlspecialchars($post['content']) !== $post_content): ?>
-                                <div class="post-text__more-link-wrapper">
-                                    <a class="post-text__more-link" href="/post.php?id=<?= $post['id']; ?>">Читать далее</a>
-                                </div>
-                            <?php endif; ?>
+                                    <div class="post-text__more-link-wrapper">
+                                        <a class="post-text__more-link" href="/post.php?id=<?= $post['id']; ?>">Читать
+                                            далее</a>
+                                    </div>
+                                <?php endif; ?>
                                 <?php break; ?>
-                            <?php endswitch; ?>
+                        <?php endswitch; ?>
                     </div>
                     <footer class="post__footer">
                         <div class="post__author">
-                            <a class="post__author-link" href="/profile.php?id=<?= $post['user_id'] ?>" title="Автор">
+                            <a class="post__author-link" href="/profile.php?id=<?= $post['user_id']; ?>" title="Автор">
                                 <div class="post__avatar-wrapper">
-                                    <img class="post__author-avatar" src="<?= $post['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя" width="40" height="40">
+                                    <img class="post__author-avatar"
+                                         src="<?= $post['avatar'] ?? 'img/icon-input-user.svg'; ?>"
+                                         alt="Аватар пользователя" width="40" height="40">
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><?= htmlspecialchars($post['login']); ?></b>
-                                    <time class="post__time" datetime="<?= $post['dt_add']; ?>" title="<?= date_format(date_create($post['dt_add']), 'd.m.Y H:i'); ?>"><?= format_time($post['dt_add']); ?>назад</time>
+                                    <time class="post__time" datetime="<?= $post['dt_add']; ?>"
+                                          title="<?= date_format(date_create($post['dt_add']),
+                                              'd.m.Y H:i'); ?>"><?= format_time($post['dt_add']); ?>назад
+                                    </time>
                                 </div>
                             </a>
                         </div>
                         <div class="post__indicators">
                             <div class="post__buttons">
-                                <a class="post__indicator post__indicator--likes button" href="/actions/toggle-like.php?id=<?= $post['id']; ?>" title="Лайк">
-                                    <svg class="post__indicator-icon <?= $post['is_liked'] ? 'post__indicator-icon--like-active' : ''; ?>" width="20" height="17">
+                                <a class="post__indicator post__indicator--likes button"
+                                   href="/actions/toggle-like.php?id=<?= $post['id']; ?>" title="Лайк">
+                                    <svg class="post__indicator-icon <?= !empty($post['is_liked']) ? 'post__indicator-icon--like-active' : ''; ?>"
+                                         width="20" height="17">
                                         <use xlink:href="#icon-heart"></use>
                                     </svg>
-                                    <svg class="post__indicator-icon <?= !$post['is_liked'] ? 'post__indicator-icon--like-active' : ''; ?>" width="20" height="17">
+                                    <svg class="post__indicator-icon <?= empty($post['is_liked']) ? 'post__indicator-icon--like-active' : ''; ?>"
+                                         width="20" height="17">
                                         <use xlink:href="#icon-heart-active"></use>
                                     </svg>
                                     <span><?= $post['likes_count']; ?></span>
                                     <span class="visually-hidden">количество лайков</span>
                                 </a>
-                                <a class="post__indicator post__indicator--comments button" href="/post.php?id=<?= $post['id']; ?>" title="Комментарии">
+                                <a class="post__indicator post__indicator--comments button"
+                                   href="/post.php?id=<?= $post['id']; ?>" title="Комментарии">
                                     <svg class="post__indicator-icon" width="19" height="17">
                                         <use xlink:href="#icon-comment"></use>
                                     </svg>
@@ -166,12 +197,13 @@
         <?php if ($pages_count > 1): ?>
             <div class="popular__page-links">
                 <?php if ($page !== 1): ?>
-                    <a class="popular__page-link popular__page-link--prev button button--gray" href="<?= get_query_href(['page' => $page === 2 ? null : $page - 1], '/popular.php'); ?>">Предыдущая страница</a>
-                <?php else: ?>
-                    <a></a>
+                    <a class="popular__page-link popular__page-link--prev button button--gray"
+                       href="<?= get_query_href(['page' => $page === 2 ? null : $page - 1], '/popular.php'); ?>">Предыдущая страница</a>
                 <?php endif; ?>
                 <?php if ($page !== $pages_count): ?>
-                    <a class="popular__page-link popular__page-link--next button button--gray" href="<?= get_query_href(['page' => $page + 1], '/popular.php'); ?>">Следующая страница</a>
+                    <a class="popular__page-link popular__page-link--next button button--gray"
+                       href="<?= get_query_href(['page' => $page + 1], '/popular.php'); ?>"
+                       style="margin-left: auto;">Следующая страница</a>
                 <?php endif; ?>
             </div>
         <?php endif; ?>

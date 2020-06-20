@@ -18,23 +18,35 @@ $title_errors = [
     'avatar' => 'Фото',
 ];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = remove_space($_POST);
     $rules = [
-        'email' => function($value) {return validate_email($value); },
-        'login' => function($value) {return validate_login($value); },
-        'password' => function($value) {return validate_password($value); },
-        'password-repeat' => function($value) {return validate_password_repeat($value); },
+        'email' => function ($value) {
+            return validate_email($value);
+        },
+        'login' => function ($value) {
+            return validate_login($value);
+        },
+        'password' => function ($value) {
+            return validate_password($value);
+        },
+        'password-repeat' => function ($value) {
+            return validate_password_repeat($value);
+        },
     ];
 
     $errors = validate($user, $rules);
 
     if (empty($errors['login'])) {
-        $errors = ['login' => search_sql_login($link, $_POST['login']) ? 'Пользователь с таким логином уже существует' : ''] + $errors;
+        $errors = [
+                'login' => search_sql_login($link, $_POST['login']) ? 'Пользователь с таким логином уже существует' : ''
+            ] + $errors;
     }
 
     if (empty($errors['email'])) {
-        $errors = ['email' => search_sql_email($link, $_POST['email']) ? 'Пользователь с таким Email уже существует' : ''] + $errors;
+        $errors = [
+                'email' => search_sql_email($link, $_POST['email']) ? 'Пользователь с таким Email уже существует' : ''
+            ] + $errors;
     }
 
     if (!empty($_FILES['avatar']['name'])) {
@@ -54,10 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $page_content = include_template('registration.php', [
-    'user' => $user,
+    'user' => $user ?? [],
     'errors' => $errors ?? [],
     'title_errors' => $title_errors,
 ]);
+
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
     'title' => 'readme: регистрация',

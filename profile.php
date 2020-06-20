@@ -7,7 +7,7 @@ require_once 'constants.php';
 
 $user_data = $_SESSION['user'];
 $unread_messages_count = get_sql_unread_messages_count($link, $user_data['id']);
-$profile_id = filter_input(INPUT_GET, 'id') ?? null;
+$profile_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $profile_data = get_sql_user($link, $profile_id);
 
 if (empty($profile_data)) {
@@ -19,23 +19,25 @@ if (empty($profile_data)) {
 $query_parameter = filter_input(INPUT_GET, 'query-parameter') ?? 'posts';
 $showed_comments_post_ids = array_filter(explode('+', filter_input(INPUT_GET, 'comments')));
 $showed_comments_all_post_ids = array_filter(explode('+', filter_input(INPUT_GET, 'comments-all')));
-$profile_data['login'] = implode('<br>', explode(' ', $profile_data['login']));
+$profile_data['login'] = explode(' ', $profile_data['login']);
 $profile_data['is_follower'] = is_follower($link, $profile_id, $user_data['id']);
 
 switch ($query_parameter) {
     case 'posts':
-        $posts = get_sql_posts_filters($link, ['user_id = ?' => $profile_id, 'user_data_id' => $user_data['id']], 'dt_add', 'DESC', 100);
+        $posts = get_sql_posts_filters($link, ['user_id = ?' => $profile_id, 'user_data_id' => $user_data['id']],
+            'dt_add', 'DESC', 100);
 
         foreach ($posts as $key => $post) {
-            $posts[$key]['hashtags'] = get_sql_hashtags($link, $post['id']);//получаем хештеги поста
-            $posts[$key]['repost_count'] = get_sql_repost_count($link, $post['id']);//получаем число репостов
+            $posts[$key]['hashtags'] = get_sql_hashtags($link, $post['id']);
+            $posts[$key]['repost_count'] = get_sql_repost_count($link, $post['id']);
 
-            if (in_array($post['id'], $showed_comments_post_ids)) {//получаем комментарии поста, если в поисковом запросе есть id этого поста
+            if (in_array($post['id'], $showed_comments_post_ids)) {
                 $posts[$key]['comments'] = get_sql_comments($link, $post['id']);
-                $posts[$key]['comments_count_in_page'] = in_array($post['id'], $showed_comments_all_post_ids) ? $post['comments_count'] : MAX_COMMENT_COUNT;
+                $posts[$key]['comments_count_in_page'] = in_array($post['id'],
+                    $showed_comments_all_post_ids) ? $post['comments_count'] : MAX_COMMENT_COUNT;
             }
 
-            if ($post['author_id']) {//если у поста есть автор, значит это репост и мы получаем по его id логин, аватар и дату публикации оригинального поста
+            if ($post['author_id']) {
                 $author = get_sql_user($link, $post['author_id']);
                 $posts[$key]['author_login'] = $author['login'];
                 $posts[$key]['author_avatar'] = $author['avatar'];
@@ -44,9 +46,13 @@ switch ($query_parameter) {
             }
         }
 
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $new_comment = remove_space($_POST);
-            $rules = ['content' => function($value) {return validate_comment($value); },];
+            $rules = [
+                'content' => function ($value) {
+                    return validate_comment($value);
+                },
+            ];
 
             $errors = array_filter(validate($new_comment, $rules));
 
@@ -54,7 +60,8 @@ switch ($query_parameter) {
                 $result = create_sql_comment($link, $new_comment['content'], $new_comment['post_id'], $user_data['id']);
 
                 if ($result) {
-                    header('Location: profile.php?id='. $profile_id . '&comments=' . filter_input(INPUT_GET, 'comments'));
+                    header('Location: profile.php?id=' . $profile_id . '&comments=' . filter_input(INPUT_GET,
+                            'comments'));
                     die();
                 }
 
@@ -68,8 +75,8 @@ switch ($query_parameter) {
             'posts' => $posts,
             'showed_comments_post_ids' => $showed_comments_post_ids,
             'showed_comments_all_post_ids' => $showed_comments_all_post_ids,
-            'new_comment' => $new_comment,
-            'errors' => $errors,
+            'new_comment' => $new_comment ?? [],
+            'errors' => $errors ?? [],
         ]);
         break;
     case 'likes':
@@ -97,6 +104,7 @@ $page_content = include_template('profile.php', [
     'user_data' => $user_data,
     'profile_data' => $profile_data,
 ]);
+
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
     'title' => 'readme: профиль',

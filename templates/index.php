@@ -30,7 +30,8 @@
                 </p>
                 <ul class="header__user-nav">
                     <li>
-                        <a class="header__user-button header__register-button button button--transparent" href="registration.php">Регистрация</a>
+                        <a class="header__user-button header__register-button button button--transparent"
+                           href="registration.php">Регистрация</a>
                     </li>
                 </ul>
             </nav>
@@ -60,21 +61,25 @@
         <section class="authorization">
             <h2 class="visually-hidden">Авторизация</h2>
             <form class="authorization__form form" action="/index.php" method="post">
-                <div class="authorization__input-wrapper form__input-wrapper <?= $errors['email'] ? 'form__input-section--error' :''; ?>">
-                    <input class="authorization__input authorization__input--login form__input" type="text" name="email" placeholder="Электронная почта" value="<?= htmlspecialchars($form['email']); ?>">
+                <div class="authorization__input-wrapper form__input-wrapper <?= !empty($errors['email']) ? 'form__input-section--error' : ''; ?>">
+                    <input class="authorization__input authorization__input--login form__input" type="text" name="email"
+                           placeholder="Электронная почта"
+                           value="<?= !empty($form['email']) ? htmlspecialchars($form['email']) : ''; ?>">
                     <svg class="form__input-icon" width="19" height="18">
                         <use xlink:href="#icon-input-user"></use>
                     </svg>
                 </div>
-                <label class="visually-hidden <?= $errors['email'] ? 'form__input-section--error' :''; ?>">Электронная почта</label>
-                <span class="form__error-label form__error-label--login" style="margin-bottom: 10px;"><?= $errors['email']; ?></span>
-                <div class="authorization__input-wrapper form__input-wrapper <?= $errors['password'] ? 'form__input-section--error' :''; ?>">
-                    <input class="authorization__input authorization__input--password form__input" type="password" name="password" placeholder="Пароль">
+                <label class="visually-hidden <?= !empty($errors['email']) ? 'form__input-section--error' : ''; ?>">Электронная почта</label>
+                <span class="form__error-label form__error-label--login"
+                      style="margin-bottom: 10px;"><?= $errors['email']; ?></span>
+                <div class="authorization__input-wrapper form__input-wrapper <?= !empty($errors['password'] )? 'form__input-section--error' : ''; ?>">
+                    <input class="authorization__input authorization__input--password form__input" type="password"
+                           name="password" placeholder="Пароль">
                     <svg class="form__input-icon" width="16" height="20">
                         <use xlink:href="#icon-input-password"></use>
                     </svg>
                 </div>
-                <label class="visually-hidden <?= $errors['password'] ? 'form__input-section--error' :''; ?>">Пароль</label>
+                <label class="visually-hidden <?= !empty($errors['password'] )? 'form__input-section--error' : ''; ?>">Пароль</label>
                 <span class="form__error-label"><?= $errors['password']; ?></span>
                 <a class="authorization__recovery" href="#">Восстановить пароль</a>
                 <button class="authorization__submit button button--main" type="submit">Войти</button>
@@ -110,7 +115,9 @@
                     </ul>
                 </div>
                 <p class="footer__license">
-                    При использовании любых материалов с сайта обязательно указание Readme в качестве источника. Все авторские и исключительные права в рамках проекта защищены в соответствии с положениями 4 части Гражданского Кодекса Российской Федерации.
+                    При использовании любых материалов с сайта обязательно указание Readme в качестве источника. Все
+                    авторские и исключительные права в рамках проекта защищены в соответствии с положениями 4 части
+                    Гражданского Кодекса Российской Федерации.
                 </p>
             </div>
             <div class="footer__my-info">

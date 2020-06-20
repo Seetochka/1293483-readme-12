@@ -16,31 +16,38 @@ $unread_messages_count = get_sql_unread_messages_count($link, $user_data['id']);
 $form_title = ['фото', 'видео', 'текста', 'цитаты', 'ссылки'];
 
 $content_types = get_sql_content_types($link);
-$active_content_type = strval(filter_input(INPUT_GET, 'content-type') ?? $_POST['content_type_id'] ?? 1);
+$active_content_type = strval(filter_input(INPUT_GET, 'content-type') ?? $_POST['content_type_id'] ?? 3);
 $index = find_index($content_types, 'id', $active_content_type);
+
+if (!isset($index)) {
+    header("HTTP/1.0 404 Not Found");
+    $error_msg = 'Не удалось выполнить запрос';
+    die($error_msg);
+}
 
 $title_errors = [
     'title' => 'Заголовок',
     'link' => 'Ссылка',
-    'content' => $content_types[$index]['class_name'] === 'quote' ? ' Текст цитаты' :'Текст поста',
+    'content' => $content_types[$index]['class_name'] === 'quote' ? ' Текст цитаты' : 'Текст поста',
     'quote_author' => 'Автор',
     'hashtag_name' => 'Теги',
     'photo' => 'Фото',
     'video' => 'Ссылка YouTube',
 ];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $post_to_validate = remove_space($_POST);
 
     if (!empty($_FILES['photo']['name'])) {
         $post_to_validate['photo'] = $_FILES['photo'];
     }
 
-    $rules = prepare_post_rules($content_types[$index]['class_name']);
+    $rules = prepare_post_rules($content_types[$index]['class_name'], $post_to_validate['hashtag_name']);
     $errors = array_filter(validate($post_to_validate, $rules));
 
     if (!count($errors)) {
         $post_to_create = remove_space(prepare_post_data($_POST, $content_types[$index]['class_name']));
+        $post_to_create['user_id'] = $user_data['id'];
         $post_id = create_sql_post($link, $content_types[$index]['class_name'], $post_to_create);
 
         if ($post_id) {
@@ -66,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $add_post_content = include_template("add-post/add-post-{$content_types[$index]['class_name']}.php", [
     'index' => $index,
     'content_types' => $content_types,
-    'post' => $post_to_validate,
+    'post' => $post_to_validate ?? [],
     'errors' => $errors ?? [],
     'title_errors' => $title_errors,
 ]);
@@ -78,7 +85,7 @@ $page_content = include_template('add-post.php', [
     'active_content_type' => $active_content_type,
     'index' => $index,
     'form_title' => $form_title,
-    'post' => $post_to_validate,
+    'post' => $post_to_validate ?? [],
     'errors' => $errors ?? [],
     'title_errors' => $title_errors,
 ]);

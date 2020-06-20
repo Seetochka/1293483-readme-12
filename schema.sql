@@ -1,5 +1,5 @@
 CREATE DATABASE readme
-    DEFAULT CHARACTER SET utf8
+    DEFAULT CHARACTER SET utf8mb4
     DEFAULT COLLATE utf8_general_ci;
 
 USE readme;

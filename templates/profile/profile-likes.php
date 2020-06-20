@@ -6,7 +6,9 @@
                 <div class="post-mini__user-info user__info">
                     <div class="post-mini__avatar user__avatar">
                         <a class="user__avatar-link" href="/profile.php?id=<?= $post['user_id']; ?>">
-                            <img class="post-mini__picture user__picture" src="<?= $post['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя" width="60" height="60">
+                            <img class="post-mini__picture user__picture"
+                                 src="<?= $post['avatar'] ?? 'img/icon-input-user.svg'; ?>" alt="Аватар пользователя"
+                                 width="60" height="60">
                         </a>
                     </div>
                     <div class="post-mini__name-wrapper user__name-wrapper">
@@ -15,14 +17,17 @@
                         </a>
                         <div class="post-mini__action">
                             <span class="post-mini__activity user__additional">Лайкнул вашу публикацию</span>
-                            <time class="post-mini__time user__additional" datetime="<?= $post['dt_add']; ?>"><?= format_time($post['dt_add']); ?> назад</time>
+                            <time class="post-mini__time user__additional" datetime="<?= $post['dt_add']; ?>"
+                                  title="<?= date_format(date_create($post['dt_add']),
+                                      'd.m.Y H:i'); ?>"><?= format_time($post['dt_add']); ?> назад
+                            </time>
                         </div>
                     </div>
                 </div>
                 <div class="post-mini__preview">
                     <a class="post-mini__link" href="/post.php?id=<?= $post['id'] ?>" title="Перейти на публикацию">
                         <?php switch ($post['class_name']):
-                            case 'quote':?>
+                            case 'quote': ?>
                                 <span class="visually-hidden">Цитата</span>
                                 <svg class="post-mini__preview-icon" width="21" height="20">
                                     <use xlink:href="#icon-filter-quote"></use>
@@ -36,7 +41,8 @@
                                 <?php break; ?>
                             <?php case 'photo': ?>
                                 <div class="post-mini__image-wrapper">
-                                    <img class="post-mini__image" src="<?= htmlspecialchars($post['photo']); ?>" width="109" height="109" alt="Превью публикации">
+                                    <img class="post-mini__image" src="<?= htmlspecialchars($post['photo']); ?>"
+                                         width="109" height="109" alt="Превью публикации">
                                 </div>
                                 <span class="visually-hidden">Фото</span>
                                 <?php break; ?>
