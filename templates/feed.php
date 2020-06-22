@@ -7,43 +7,54 @@
             <h2 class="visually-hidden">Лента</h2>
             <div class="feed__main-wrapper">
                 <div class="feed__wrapper">
-                    <?php foreach ($posts as $post): ?>
+                    <?php foreach ($posts as $post) : ?>
                         <article class="feed__post post post-<?= $post['class_name']; ?>">
                             <header class="post__header post__author">
                                 <a class="post__author-link"
-                                   href="/profile.php?id=<?= empty($post['author_id']) ? $post['user_id'] : $post['author_id']; ?>"
+                                   href="/profile.php?id=<?= empty($post['author_id']) ?
+                                       $post['user_id'] : $post['author_id']; ?>"
                                    title="Автор">
-                                    <div class="post__avatar-wrapper <?= empty($post['author_id']) ? '' : 'post__avatar-wrapper--repost'; ?>">
+                                    <div class="post__avatar-wrapper <?= empty($post['author_id']) ?
+                                        '' : 'post__avatar-wrapper--repost'; ?>">
                                         <img class="post__author-avatar"
-                                             src="<?= empty($post['author_id']) ? $post['avatar'] ?? 'img/icon-input-user.svg' : $post['author_avatar'] ?? 'img/icon-input-user.svg'; ?>"
+                                             src="<?= empty($post['author_id']) ?
+                                                 $post['avatar'] ?? 'img/icon-input-user.svg' :
+                                                 $post['author_avatar'] ?? 'img/icon-input-user.svg'; ?>"
                                              alt="Аватар пользователя" width="60" height="60">
                                     </div>
                                     <div class="post__info">
-                                        <b class="post__author-name"><?= empty($post['author_id']) ? htmlspecialchars($post['login']) : 'Репост: ' . htmlspecialchars($post['author_login']); ?></b>
+                                        <b class="post__author-name"><?= empty($post['author_id']) ?
+                                                htmlspecialchars($post['login']) :
+                                                'Репост: ' . htmlspecialchars($post['author_login']); ?></b>
                                         <time class="post__time" datetime="<?= $post['dt_add']; ?>"
-                                              title="<?= date_format(date_create($post['dt_add']),
-                                                  'd.m.Y H:i'); ?>"><?= format_time($post['dt_add']); ?> назад
+                                              title="<?= date_format(date_create($post['dt_add']), 'd.m.Y H:i'); ?>">
+                                            <?= format_time($post['dt_add']); ?> назад
                                         </time>
                                     </div>
                                 </a>
                             </header>
                             <div class="post__main">
-                                <?php switch ($post['class_name']):
-                                    case 'quote': ?>
+                                <?php switch ($post['class_name']) :
+                                    case 'quote':
+                                        ?>
                                         <blockquote>
                                             <p>
                                                 <?= htmlspecialchars($post['content']); ?>
                                             </p>
                                             <cite><?= htmlspecialchars($post['quote_author']); ?></cite>
                                         </blockquote>
-                                        <?php break; ?>
-                                    <?php case 'link': ?>
+                                        <?php
+                                              break; ?>
+                                    <?php case 'link':
+                                        ?>
                                         <div class="post-link__wrapper">
                                             <a class="post-link__external"
                                                href="<?= append_protocol(htmlspecialchars($post['link'])); ?>"
                                                title="Перейти по ссылке">
                                                 <div class="post-link__icon-wrapper">
-                                                    <img src="https://www.google.com/s2/favicons?domain=<?= htmlspecialchars($post['link']); ?>"
+                                                    <img src="https://www.google.com/s2/favicons?domain=<?=
+                                                    htmlspecialchars($post['link']);
+                                                    ?>"
                                                          alt="Иконка" width="120" height="120">
                                                 </div>
                                                 <div class="post-link__info">
@@ -56,50 +67,62 @@
                                                 </svg>
                                             </a>
                                         </div>
-                                        <?php break; ?>
-                                    <?php case 'photo': ?>
+                                        <?php
+                                              break; ?>
+                                    <?php case 'photo':
+                                        ?>
                                         <h2>
-                                            <a href="post.php?id=<?= $post['id']; ?>"><?= htmlspecialchars($post['title']); ?></a>
+                                            <a href="post.php?id=<?= $post['id']; ?>">
+                                                <?= htmlspecialchars($post['title']); ?>
+                                            </a>
                                         </h2>
                                         <div class="post-photo__image-wrapper">
                                             <img src="<?= htmlspecialchars($post['photo']); ?>"
                                                  alt="<?= htmlspecialchars($post['title']); ?>" width="760"
                                                  height="396">
                                         </div>
-                                        <?php break; ?>
-                                    <?php case 'video': ?>
+                                        <?php
+                                              break; ?>
+                                    <?php case 'video':
+                                        ?>
                                         <div class="post-video__block">
                                             <div class="post-video__preview">
                                                 <?= embed_youtube_video(htmlspecialchars($post['video'])); ?>
                                             </div>
                                         </div>
-                                        <?php break; ?>
+                                        <?php
+                                              break; ?>
                                     <?php case 'text':
                                         $post_content = cut_text(htmlspecialchars($post['content'])); ?>
                                         <h2>
-                                            <a href="post.php?id=<?= $post['id']; ?>"><?= htmlspecialchars($post['title']); ?></a>
+                                            <a href="post.php?id=<?= $post['id']; ?>">
+                                                <?= htmlspecialchars($post['title']); ?>
+                                            </a>
                                         </h2>
                                         <p>
                                             <?= $post_content; ?>
                                         </p>
-                                        <?php if (htmlspecialchars($post['content']) !== $post_content): ?>
+                                        <?php if (htmlspecialchars($post['content']) !== $post_content) : ?>
                                             <div class="post-text__more-link-wrapper">
                                                 <a class="post-text__more-link"
-                                                   href="/post.php?id=<? $post['id']; ?>">Читать далее</a>
+                                                   href="/post.php?id=<?= $post['id']; ?>">Читать далее</a>
                                             </div>
                                         <?php endif; ?>
-                                        <?php break; ?>
+                                        <?php
+                                              break; ?>
                                 <?php endswitch; ?>
                             </div>
                             <footer class="post__footer post__indicators">
                                 <div class="post__buttons">
                                     <a class="post__indicator post__indicator--likes button"
                                        href="/actions/toggle-like.php?id=<?= $post['id']; ?>" title="Лайк">
-                                        <svg class="post__indicator-icon <?= !empty($post['is_liked']) ? 'post__indicator-icon--like-active' : ''; ?>"
+                                        <svg class="post__indicator-icon <?= !empty($post['is_liked']) ?
+                                            'post__indicator-icon--like-active' : ''; ?>"
                                              width="20" height="17">
                                             <use xlink:href="#icon-heart"></use>
                                         </svg>
-                                        <svg class="post__indicator-icon <?= empty($post['is_liked']) ? 'post__indicator-icon--like-active' : ''; ?>"
+                                        <svg class="post__indicator-icon <?= empty($post['is_liked']) ?
+                                            'post__indicator-icon--like-active' : ''; ?>"
                                              width="20" height="17">
                                             <use xlink:href="#icon-heart-active"></use>
                                         </svg>
@@ -124,9 +147,11 @@
                                     </a>
                                 </div>
                                 <ul class="post__tags">
-                                    <?php foreach ($post['hashtags'] as $hashtag): ?>
-                                        <li><a href="/search.php?q=%23<?= $hashtag; ?>">#<?= $hashtag; ?></a></li>
-                                    <?php endforeach; ?>
+                                    <?php if (!empty($post['hashtags'])) : ?>
+                                        <?php foreach ($post['hashtags'] as $hashtag) : ?>
+                                            <li><a href="/search.php?q=%23<?= $hashtag; ?>">#<?= $hashtag; ?></a></li>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </ul>
                             </footer>
                         </article>
@@ -144,18 +169,22 @@
                         <span>Все</span>
                     </a>
                 </li>
-                <?php foreach ($content_types as $content_type):
+                <?php foreach ($content_types as $content_type) :
                     $type = $content_type['class_name']; ?>
                     <li class="feed__filters-item filters__item">
-                        <a class="filters__button filters__button--<?= $content_type['class_name']; ?> button <?= (int) $content_type['id'] === $active_content_type ? 'filters__button--active' : ''; ?>"
+                        <a class="
+                        filters__button
+                        filters__button--<?= $content_type['class_name']; ?>
+                        button
+                        <?= (int) $content_type['id'] === $active_content_type ? 'filters__button--active' : ''; ?>"
                            href="<?= get_query_href([
                                'content-type' => $content_type['id'],
                                'sorting-type' => null,
                                'sorting-order' => null
                            ], '/feed.php'); ?>">
                             <span class="visually-hidden"><?= $content_type['title']; ?></span>
-                            <svg class="filters__icon" width="<?= $content_type_size[$type]['width']; ?>"
-                                 height="<?= $content_type_size[$type]['height']; ?>">
+                            <svg class="filters__icon" width="<?= CONTENT_TYPE_SIZE[$type]['width']; ?>"
+                                 height="<?= CONTENT_TYPE_SIZE[$type]['height']; ?>">
                                 <use xlink:href="#icon-filter-<?= $content_type['class_name']; ?>"></use>
                             </svg>
                         </a>

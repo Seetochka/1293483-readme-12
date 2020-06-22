@@ -42,7 +42,8 @@ function get_sql_posts_filters(
         $user_data_id = $params['follower_id = ?'];//для страницы feed user_data_id передается как follower_id
     }
 
-    $sql_posts = "SELECT DISTINCT p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, u.login, u.avatar, ct.class_name, p.user_id, p.author_id, p. original_id,
+    $sql_posts = "SELECT DISTINCT p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, 
+                u.login, u.avatar, ct.class_name, p.user_id, p.author_id, p. original_id,
                 (SELECT COUNT(post_id) FROM likes WHERE p.id = likes.post_id) AS likes_count,
                 (SELECT COUNT(id) FROM comments WHERE p.id = comments.post_id) AS comments_count,
                 (SELECT user_id FROM likes WHERE p.id = likes.post_id AND likes.user_id = $user_data_id) AS is_liked
@@ -65,8 +66,8 @@ function get_sql_posts_filters(
             return fetch_all($connection, $sql_posts, $params);
         }
 
-        $params = array_filter(explode(' ',
-            $params['q']));//разбивает поисковый запрос на отдельные слова и делает из них массив
+        //разбивает поисковый запрос на отдельные слова и делает из них массив
+        $params = array_filter(explode(' ', $params['q']));
         $params = array_map(function ($value) {
             if (substr($value, 0, 1) === '#') {
                 return substr($value, 1);
@@ -76,7 +77,7 @@ function get_sql_posts_filters(
         }, $params);//удаляет из начала строки каждого элемента массива #, если он есть
         $sql_posts .= ' INNER JOIN post_hashtag ph ON p.id = ph.post_id
             INNER JOIN hashtags h ON ph.hashtag_id = h.id
-            WHERE hashtag_name = ?';
+            WHERE BINARY hashtag_name = ?';
 
         for ($i = 1; $i < count($params); $i++) {
             $sql_posts .= ' OR hashtag_name = ?';
@@ -98,7 +99,8 @@ function get_sql_posts_filters(
  */
 function get_sql_post($connection, int $post_id, int $user_data_id): ?array
 {
-    $sql_post = "SELECT p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, p.show_count, ct.class_name, p.content_type_id, p.user_id, p.author_id, p. original_id,
+    $sql_post = "SELECT p.id, p.dt_add, p.title, p.content, p.quote_author, p.photo, p.video, p.link, p.show_count, 
+                ct.class_name, p.content_type_id, p.user_id, p.author_id, p. original_id,
                 (SELECT COUNT(post_id) FROM likes WHERE p.id = likes.post_id) AS likes_count,
                 (SELECT COUNT(id) FROM comments WHERE p.id = comments.post_id) AS comments_count,
                 (SELECT user_id FROM likes WHERE p.id = likes.post_id AND likes.user_id = $user_data_id) AS is_liked
@@ -174,8 +176,9 @@ function create_sql_post($connection, string $content_type, array $post): ?int
             $sql_post .= ', content';
             break;
         case 'quote':
-            $sql_post .= array_key_exists('author_id',
-                $post) ? ', content, quote_author, user_id, author_id, original_id) VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?)' : ', content, quote_author, user_id) VALUES (NOW(), ?, ?, ?, ?, ?)';
+            $sql_post .= array_key_exists('author_id', $post) ?
+                ', content, quote_author, user_id, author_id, original_id) VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?)' :
+                ', content, quote_author, user_id) VALUES (NOW(), ?, ?, ?, ?, ?)';
             break;
         case 'link':
             $sql_post .= ', link';
@@ -183,8 +186,9 @@ function create_sql_post($connection, string $content_type, array $post): ?int
     }
 
     if ($content_type !== 'quote') {
-        $sql_post .= array_key_exists('author_id',
-            $post) ? ', user_id, author_id, original_id) VALUES (NOW(), ?, ?, ?, ?, ?, ?)' : ', user_id) VALUES (NOW(), ?, ?, ?, ?)';
+        $sql_post .= array_key_exists('author_id', $post) ?
+            ', user_id, author_id, original_id) VALUES (NOW(), ?, ?, ?, ?, ?, ?)' :
+            ', user_id) VALUES (NOW(), ?, ?, ?, ?)';
     }
 
     mysqli_query($connection, "START TRANSACTION");
@@ -217,7 +221,7 @@ function create_sql_post($connection, string $content_type, array $post): ?int
  */
 function get_sql_hashtag_id($connection, string $hashtag): ?int
 {
-    $sql_hashtag_db = 'SELECT h.id FROM hashtags h WHERE h.hashtag_name = ?';
+    $sql_hashtag_db = 'SELECT h.id FROM hashtags h WHERE BINARY h.hashtag_name = ?';
     $result_hashtag_db = fetch_assoc($connection, $sql_hashtag_db, [$hashtag]);
 
     if ($result_hashtag_db) {
@@ -385,7 +389,8 @@ function get_sql_posts_likes($connection, int $user_id): array
 function get_sql_authors($connection, int $user_id): array
 {
     $sql_authors = 'SELECT u.id, u.dt_add, u.login, u.avatar,
-                    (SELECT COUNT(follower_id) FROM subscriptions WHERE u.id = subscriptions.author_id) AS follower_count,
+                    (SELECT COUNT(follower_id) FROM subscriptions WHERE u.id = subscriptions.author_id) 
+                        AS follower_count,
                     (SELECT COUNT(id) FROM posts WHERE u.id = posts.user_id) AS posts_count 
                     FROM users u
                     INNER JOIN subscriptions s ON u.id = s.author_id
@@ -586,8 +591,11 @@ function get_sql_messages($connection, int $user_data_id, int $interlocutor_id):
                         WHERE m.sender_id = ? AND m.receiver_id = ?
                         ORDER BY dt_add";
 
-    return fetch_all($connection, $sql_messages_sent,
-        [$user_data_id, $interlocutor_id, $user_data_id, $interlocutor_id]);
+    return fetch_all(
+        $connection,
+        $sql_messages_sent,
+        [$user_data_id, $interlocutor_id, $user_data_id, $interlocutor_id]
+    );
 }
 
 /**

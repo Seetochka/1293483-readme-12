@@ -9,7 +9,7 @@
         </button>
         <div class="form__error-text">
             <h3 class="form__error-title"><?= $title_errors['link']; ?></h3>
-            <p class="form__error-desc"><?= $errors['link']; ?></p>
+            <p class="form__error-desc"><?= !empty($errors['link']) ? $errors['link'] : ''; ?></p>
         </div>
     </div>
 </div>

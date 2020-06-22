@@ -7,14 +7,22 @@
             <div class="adding-post__tabs-wrapper tabs">
                 <div class="adding-post__tabs filters">
                     <ul class="adding-post__tabs-list filters__list tabs__list">
-                        <?php foreach ($content_types as $content_type):
+                        <?php foreach ($content_types as $content_type) :
                             $type = $content_type['class_name']; ?>
                             <li class="adding-post__tabs-item filters__item">
-                                <a class="adding-post__tabs-link filters__button filters__button--<?= $content_type['class_name']; ?>
-                                <?= $content_type['id'] === $active_content_type ? 'filters__button--active' : ''; ?> tabs__item <?= $content_type['id'] === $active_content_type ? 'tabs__item--active' : ''; ?> button"
+                                <a class="
+                                adding-post__tabs-link
+                                filters__button
+                                filters__button--<?= $content_type['class_name']; ?>
+                                <?= (int) $content_type['id'] === (int) $active_content_type ?
+                                    'filters__button--active' : ''; ?>
+                                tabs__item
+                                <?= (int) $content_type['id'] === (int) $active_content_type ?
+                                    'tabs__item--active' : ''; ?>
+                                button"
                                    href="<?= get_query_href(['content-type' => $content_type['id']], 'add.php'); ?>">
-                                    <svg class="filters__icon" width="<?= $content_type_size[$type]['width']; ?>"
-                                         height="<?= $content_type_size[$type]['height']; ?>">
+                                    <svg class="filters__icon" width="<?= CONTENT_TYPE_SIZE[$type]['width']; ?>"
+                                         height="<?= CONTENT_TYPE_SIZE[$type]['height']; ?>">
                                         <use xlink:href="#icon-filter-<?= $content_type['class_name']; ?>"></use>
                                     </svg>
                                     <span><?= $content_type['title']; ?></span>
@@ -24,8 +32,10 @@
                     </ul>
                 </div>
                 <div class="adding-post__tab-content">
-                    <section
-                            class="adding-post__<?= $content_types[$index]['class_name']; ?> tabs__content tabs__content--active">
+                    <section class="
+                            adding-post__<?= $content_types[$index]['class_name']; ?>
+                            tabs__content
+                            tabs__content--active">
                         <h2 class="visually-hidden">Форма добавления <?= $form_title[$index]; ?></h2>
                         <form class="adding-post__form form" action="/add.php" method="post"
                               enctype="multipart/form-data">
@@ -36,17 +46,20 @@
                                                for="<?= $content_types[$index]['class_name']; ?>-heading">Заголовок
                                             <span class="form__input-required">*</span>
                                         </label>
-                                        <div class="form__input-section <?= !empty($errors['title']) ? 'form__input-section--error' : ''; ?>">
+                                        <div class="form__input-section <?= !empty($errors['title']) ?
+                                            'form__input-section--error' : ''; ?>">
                                             <input class="adding-post__input form__input"
                                                    id="<?= $content_types[$index]['class_name']; ?>-heading" type="text"
                                                    name="title" placeholder="Введите заголовок"
-                                                   value="<?= !empty($post['title']) ? htmlspecialchars($post['title']) : ''; ?>">
+                                                   value="<?= !empty($post['title']) ?
+                                                       htmlspecialchars($post['title']) : ''; ?>">
                                             <button class="form__error-button button" type="button">!
                                                 <span class="visually-hidden">Информация об ошибке</span>
                                             </button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title"><?= $title_errors['title']; ?></h3>
-                                                <p class="form__error-desc"><?= $errors['title']; ?></p>
+                                                <p class="form__error-desc"><?= !empty($errors['title']) ?
+                                                        $errors['title'] : ''; ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -57,37 +70,49 @@
 
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                         <label class="adding-post__label form__label" for="video-tags">Теги</label>
-                                        <div class="form__input-section <?= $errors['hashtag_name'] ? 'form__input-section--error' : ''; ?>">
+                                        <div class="form__input-section <?= !empty($errors['hashtag_name']) ?
+                                            'form__input-section--error' : ''; ?>">
                                             <input class="adding-post__input form__input" id="video-tags" type="text"
                                                    name="hashtag_name" placeholder="Введите теги"
-                                                   value="<?= !empty($post['hashtag_name']) ? htmlspecialchars($post['hashtag_name']) : ''; ?>">
+                                                   value="<?= !empty($post['hashtag_name']) ?
+                                                       htmlspecialchars($post['hashtag_name']) : ''; ?>">
                                             <button class="form__error-button button" type="button">!
                                                 <span class="visually-hidden">Информация об ошибке</span>
                                             </button>
                                             <div class="form__error-text">
                                                 <h3 class="form__error-title"><?= $title_errors['hashtag_name']; ?></h3>
-                                                <p class="form__error-desc"><?= $errors['hashtag_name']; ?></p>
+                                                <p class="form__error-desc"><?= !empty($errors['hashtag_name']) ?
+                                                        $errors['hashtag_name'] : ''; ?></p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <?php if (count($errors) > 0): ?>
+                                <?php if (count($errors) > 0) : ?>
                                     <div class="form__invalid-block">
                                         <b class="form__invalid-slogan">Пожалуйста, исправьте следующие ошибки:</b>
                                         <ul class="form__invalid-list">
-                                            <?php foreach ($errors as $error => $message): ?>
-                                                <li class="form__invalid-item"><?= "{$title_errors[$error]}. $message"; ?>.</li>
+                                            <?php foreach ($errors as $error => $message) : ?>
+                                                <li class="form__invalid-item">
+                                                    <?= "{$title_errors[$error]}. $message"; ?>.
+                                                </li>
                                             <?php endforeach; ?>
                                         </ul>
                                     </div>
                                 <?php endif; ?>
                             </div>
-                            <?php if ($content_types[$index]['class_name'] === 'photo'): ?>
-                                <div class="adding-post__input-file-container form__input-container form__input-container--file">
+                            <?php if ($content_types[$index]['class_name'] === 'photo') : ?>
+                                <div class="
+                                adding-post__input-file-container
+                                form__input-container
+                                form__input-container--file">
                                     <div class="adding-post__input-file-wrapper form__input-file-wrapper">
                                         <input class="adding-post__input-file form__input-file visually-hidden"
                                                id="userpic-file-photo" type="file" name="photo" title=" ">
-                                        <label class="adding-post__input-file-button form__input-file-button form__input-file-button--photo button"
+                                        <label class="
+                                        adding-post__input-file-button
+                                        form__input-file-button
+                                        form__input-file-button--photo
+                                        button"
                                                for="userpic-file-photo">
                                             <span>Выбрать фото</span>
                                             <svg class="adding-post__attach-icon form__attach-icon" width="10"
@@ -96,7 +121,11 @@
                                             </svg>
                                         </label>
                                     </div>
-                                    <div class="adding-post__file adding-post__file--photo form__file dropzone-previews">
+                                    <div class="
+                                    adding-post__file
+                                    adding-post__file--photo
+                                    form__file
+                                    dropzone-previews">
                                     </div>
                                 </div>
                             <?php endif; ?>

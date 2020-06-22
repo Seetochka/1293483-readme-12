@@ -20,8 +20,13 @@ if (empty($search_query)) {
     die();
 }
 
-$posts = get_sql_posts_filters($link, ['q' => $search_query, 'user_data_id' => $user_data['id']],
-    'dt_add', 'DESC', 100);
+$posts = get_sql_posts_filters(
+    $link,
+    ['q' => $search_query, 'user_data_id' => $user_data['id']],
+    'dt_add',
+    'DESC',
+    100
+);
 
 foreach ($posts as $key => $post) {
     $posts[$key]['hashtags'] = get_sql_hashtags($link, $post['id']);

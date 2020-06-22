@@ -54,7 +54,6 @@ $posts = get_sql_posts_filters($link, $query_params, $sorting_field, $sorting_or
 $page_content = include_template('popular.php', [
     'posts' => $posts,
     'content_types' => $content_types,
-    'content_type_size' => $content_type_size,
     'active_content_type' => $active_content_type,
     'active_sorting_type' => $active_sorting_type,
     'sorting_order' => $sorting_order,

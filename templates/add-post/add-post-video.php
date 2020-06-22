@@ -11,7 +11,7 @@
         </button>
         <div class="form__error-text">
             <h3 class="form__error-title"><?= $title_errors['video']; ?></h3>
-            <p class="form__error-desc"><?= $errors['video']; ?></p>
+            <p class="form__error-desc"><?= !empty($errors['video']) ? $errors['video'] : ''; ?></p>
         </div>
     </div>
 </div>

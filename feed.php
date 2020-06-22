@@ -44,7 +44,6 @@ foreach ($posts as $key => $post) {
 $page_content = include_template('feed.php', [
     'posts' => $posts,
     'content_types' => $content_types,
-    'content_type_size' => $content_type_size,
     'active_content_type' => $active_content_type,
 ]);
 

@@ -5,11 +5,11 @@ require_once '../functions.php';
 require_once '../sql-queries.php';
 
 $user_data = $_SESSION['user'];
-$post_id = filter_input(INPUT_GET, 'id') ?? null;
-$post = get_sql_post($link, $post_id, $user_data['id']);
+$post_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$post = $post_id !== false ? get_sql_post($link, $post_id, $user_data['id']) : null;
 
 if (empty($post)) {
-    $path = $_SERVER['HTTP_REFERER'];
+    $path = $_SERVER['HTTP_REFERER'] ?? '/profile.php?id=' . $user_data['id'];
     header("Location: $path");
     die();
 }

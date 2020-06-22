@@ -16,7 +16,7 @@ $unread_messages_count = get_sql_unread_messages_count($link, $user_data['id']);
 $form_title = ['фото', 'видео', 'текста', 'цитаты', 'ссылки'];
 
 $content_types = get_sql_content_types($link);
-$active_content_type = strval(filter_input(INPUT_GET, 'content-type') ?? $_POST['content_type_id'] ?? 3);
+$active_content_type = filter_input(INPUT_GET, 'content-type', FILTER_VALIDATE_INT) ?? $_POST['content_type_id'] ?? 3;
 $index = find_index($content_types, 'id', $active_content_type);
 
 if (!isset($index)) {
@@ -56,7 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($followers as $follower) {
                 $message = new Swift_Message('Новая публикация от пользователя ' . $user_data['login']);
                 $message->setTo([$follower['email'] => $follower['login']]);
-                $message->setBody('Здравствуйте, ' . $follower['login'] . '. Пользователь ' . $user_data['login'] . ' только что опубликовал новую запись «' . $post_to_create['title'] . '». Посмотрите её на странице пользователя: http://1293483-readme-12/profile.php?id=' . $user_data['id']);
+                $message->setBody('Здравствуйте, ' . $follower['login'] . '. Пользователь ' . $user_data['login'] .
+                    ' только что опубликовал новую запись «' . $post_to_create['title'] .
+                    '». Посмотрите её на странице пользователя: http://1293483-readme-12/profile.php?id=' .
+                    $user_data['id']);
                 $message->setFrom(['keks@phpdemo.ru' => 'readme']);
 
                 $res = $mailer->send($message);
@@ -81,7 +84,6 @@ $add_post_content = include_template("add-post/add-post-{$content_types[$index][
 $page_content = include_template('add-post.php', [
     'add_post_content' => $add_post_content,
     'content_types' => $content_types,
-    'content_type_size' => $content_type_size,
     'active_content_type' => $active_content_type,
     'index' => $index,
     'form_title' => $form_title,
