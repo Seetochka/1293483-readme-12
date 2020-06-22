@@ -6,17 +6,26 @@ require_once '../sql-queries.php';
 require_once '../mail.php';
 
 $user_data = $_SESSION['user'];
-$author_id = filter_input(INPUT_GET, 'author_id');
+$author_id = filter_input(INPUT_GET, 'author_id', FILTER_VALIDATE_INT);
+$author = !empty($author_id) ? get_sql_user($link, $author_id) : null;
+
+if (empty($author)) {
+    $path = $_SERVER['HTTP_REFERER'] ?? '/';
+    header("Location: $path");
+    die();
+}
 
 $result = create_subscription($link, $author_id, $user_data['id']);
 
 if (is_follower($link, $author_id, $user_data['id'])) {
-    $author = get_sql_user($link, $author_id);
     $follower = get_sql_user($link, $user_data['id']);
 
     $message = new Swift_Message('У вас новый подписчик');
     $message->setTo([$author['email'] => $author['login']]);
-    $message->setBody('Здравствуйте, ' . $author['login'] . '. На вас подписался новый пользователь ' . $follower['login'] . '. Вот ссылка на его профиль: http://1293483-readme-12/profile.php?id=' . $user_data['id']);
+    $message->setBody(
+        'Здравствуйте, ' . $author['login'] . '. На вас подписался новый пользователь ' . $follower['login'] .
+        '. Вот ссылка на его профиль: http://1293483-readme-12/profile.php?id=' . $user_data['id']
+    );
     $message->setFrom(['keks@phpdemo.ru' => 'readme']);
 
     $res = $mailer->send($message);

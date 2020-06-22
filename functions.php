@@ -7,8 +7,12 @@
  */
 function get_db_connection(array $db_connection_data)
 {
-    return mysqli_connect($db_connection_data['host'], $db_connection_data['user'], $db_connection_data['password'],
-        $db_connection_data['database']);
+    return mysqli_connect(
+        $db_connection_data['host'],
+        $db_connection_data['user'],
+        $db_connection_data['password'],
+        $db_connection_data['database']
+    );
 }
 
 /**
@@ -192,7 +196,7 @@ function get_query_href(array $params, string $path): string
 function find_index(array $array, string $field, string $compared): ?int
 {
     foreach ($array as $key => $value) {
-        if ($value[$field] == $compared) {
+        if ($value[$field] === $compared) {
             return $key;
         }
     }
@@ -225,17 +229,6 @@ function is_email(string $value): bool
 }
 
 /**
- * Проверяет пуста ли строка
- * @param string $value Проверяемая строка
- *
- * @return bool true если строка не пустая, иначе false
- */
-function is_filled(string $value): bool
-{
-    return !empty($value);
-}
-
-/**
  * Проверяет корректная ли длина строки
  * @param string $value Проверяемая строка
  * @param int $min Минимально допустимая длина
@@ -258,7 +251,8 @@ function is_correct_length(string $value, int $min = 0, int $max = INF): bool
  */
 function is_correct_link(string $value): bool
 {
-    set_error_handler(function () {}, E_WARNING);
+    set_error_handler(function () {
+    }, E_WARNING);
     $headers = get_headers(append_protocol($value));
     restore_error_handler();
 
@@ -359,7 +353,7 @@ function validate_text(string $value): ?string
     $error_message = null;
 
     switch (false) {
-        case (is_filled($value)):
+        case (!empty($value)):
             $error_message = 'Это поле должно быть заполнено';
             break;
         case (is_correct_length($value, 0, DATABASE_VARCHAR_MAX_SIZE)):
@@ -381,7 +375,7 @@ function validate_link(string $value): ?string
     $error_message = null;
 
     switch (false) {
-        case (is_filled($value)):
+        case (!empty($value)):
             $error_message = 'Это поле должно быть заполнено';
             break;
         case (is_correct_link($value)):
@@ -419,7 +413,7 @@ function validate_tags(string $value): ?string
  */
 function validate_field_completion(string $value): ?string
 {
-    if (!is_filled($value)) {
+    if (empty($value)) {
         return 'Это поле должно быть заполнено';
     }
 
@@ -437,7 +431,7 @@ function validate_content_quote(string $value): ?string
     $error_message = null;
 
     switch (false) {
-        case (is_filled($value)):
+        case (!empty($value)):
             $error_message = 'Это поле должно быть заполнено';
             break;
         case (is_correct_length($value, 0, POST_QUOTE_MAX_LENGTH)):
@@ -489,7 +483,7 @@ function validate_link_photo(string $value): ?string
     }
 
     switch (false) {
-        case (is_filled($value)):
+        case (!empty($value)):
             $error_message = 'Загрузите фото или укажите ссылку на него';
             break;
         case (is_correct_link($value)):
@@ -517,7 +511,7 @@ function validate_link_youtube(string $value): ?string
     $error_message = null;
 
     switch (false) {
-        case (is_filled($value)):
+        case (!empty($value)):
             $error_message = 'Это поле должно быть заполнено';
             break;
         case (is_correct_link($value)):
@@ -542,7 +536,7 @@ function validate_email(string $value): ?string
     $error_message = null;
 
     switch (false) {
-        case (is_filled($value)):
+        case (!empty($value)):
             $error_message = 'Это поле должно быть заполнено';
             break;
         case (is_email($value)):
@@ -564,7 +558,7 @@ function validate_login(string $value): ?string
     $error_message = null;
 
     switch (false) {
-        case (is_filled($value)):
+        case (!empty($value)):
             $error_message = 'Это поле должно быть заполнено';
             break;
         case (is_correct_length($value, 0, DATABASE_VARCHAR_MAX_SIZE)):
@@ -586,11 +580,12 @@ function validate_password(string $value): ?string
     $error_message = null;
 
     switch (false) {
-        case (is_filled($value)):
+        case (!empty($value)):
             $error_message = 'Это поле должно быть заполнено';
             break;
         case (is_strong_password($value)):
-            $error_message = 'Пароль должен содержать не менее 6 символов, в нем должны быть цифры и латинские буквы верхнего и нижнего регистров';
+            $error_message = 'Пароль должен содержать не менее 6 символов, 
+                в нем должны быть цифры и латинские буквы верхнего и нижнего регистров';
             break;
     }
 
@@ -608,7 +603,7 @@ function validate_password_repeat(string $value): ?string
     $error_message = null;
 
     switch (false) {
-        case (is_filled($value)):
+        case (!empty($value)):
             $error_message = 'Это поле должно быть заполнено';
             break;
         case ($value === $_POST['password']):
@@ -654,11 +649,12 @@ function validate_comment(string $value): ?string
     $error_message = null;
 
     switch (false) {
-        case (is_filled($value)):
+        case (!empty($value)):
             $error_message = 'Это поле должно быть заполнено';
             break;
         case (is_correct_length($value, COMMENT_MIN_SIZE, DATABASE_VARCHAR_MAX_SIZE)):
-            $error_message = 'Введите комментарий от ' . COMMENT_MIN_SIZE . ' до ' . DATABASE_VARCHAR_MAX_SIZE . ' символов';
+            $error_message = 'Введите комментарий от ' . COMMENT_MIN_SIZE .
+                ' до ' . DATABASE_VARCHAR_MAX_SIZE . ' символов';
             break;
     }
 

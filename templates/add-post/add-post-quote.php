@@ -11,7 +11,7 @@
         </button>
         <div class="form__error-text">
             <h3 class="form__error-title"><?= $title_errors['content']; ?></h3>
-            <p class="form__error-desc"><?= $errors['content']; ?></p>
+            <p class="form__error-desc"><?= !empty($errors['content']) ? $errors['content'] : ''; ?></p>
         </div>
     </div>
 </div>
@@ -27,7 +27,7 @@
         </button>
         <div class="form__error-text">
             <h3 class="form__error-title"><?= $title_errors['quote_author']; ?></h3>
-            <p class="form__error-desc"><?= $errors['quote_author']; ?></p>
+            <p class="form__error-desc"><?= !empty($errors['quote_author']) ? $errors['quote_author'] : ''; ?></p>
         </div>
     </div>
 </div>

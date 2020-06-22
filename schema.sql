@@ -1,6 +1,6 @@
 CREATE DATABASE readme
     DEFAULT CHARACTER SET utf8mb4
-    DEFAULT COLLATE utf8_general_ci;
+    DEFAULT COLLATE utf8mb4_unicode_ci;
 
 USE readme;
 
@@ -83,7 +83,7 @@ CREATE TABLE messages (
 
 CREATE TABLE hashtags (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    hashtag_name VARCHAR(128) UNIQUE
+    hashtag_name VARCHAR(128) NOT NULL
 );
 
 CREATE TABLE post_hashtag (

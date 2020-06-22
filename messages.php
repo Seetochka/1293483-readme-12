@@ -37,8 +37,11 @@ foreach ($interlocutors as $key => $interlocutor) {
     $user = get_sql_user($link, $interlocutor['id']);
     $interlocutors[$key]['avatar'] = $user['avatar'];
     $interlocutors[$key]['login'] = $user['login'];
-    $interlocutors[$key]['unread_messages_count'] = get_sql_unread_messages_count($link, $user_data['id'],
-        $interlocutor['id']);
+    $interlocutors[$key]['unread_messages_count'] = get_sql_unread_messages_count(
+        $link,
+        $user_data['id'],
+        $interlocutor['id']
+    );
 
     $date_diff = strtotime('now') - strtotime($interlocutor['dt_add']);
     $hours_count = $date_diff / 3600;
